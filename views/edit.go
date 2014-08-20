@@ -22,6 +22,10 @@ const edit = `<!DOCTYPE html>
       <label for="description">Description</label>
       <input name="description" id="description" type="text" value="{{Description}}" />
 
+      <label for="private">Private?</label>
+      <input name="private" id="private" type="checkbox" value="private" {{#IsPrivate}}checked="checked"{{/IsPrivate}} />
+      <br/>
+
       <input type="submit" value="Save" />
     </form>
   </body>

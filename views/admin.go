@@ -17,7 +17,11 @@ const admin = `<!DOCTYPE html>
 
     <ul class="repos">
       {{#Repos}}
-        <li class="repo">
+        <li class="repo {{#IsPrivate}}private{{/IsPrivate}}">
+          <div class="buttons">
+            <a href="/edit/{{Name}}">edit</a>
+            <a href="/delete/{{Name}}">delete</a>
+          </div>
           {{#Web}}
             <h2 class="name"><a href="{{Web}}">{{Name}}</a></h2>
           {{/Web}}
@@ -26,8 +30,6 @@ const admin = `<!DOCTYPE html>
           {{/Web}}
           <p class="description">{{Description}}</p>
           <pre><code data-lang="shell">$ git clone {{Url}}/{{Name}}.git</code></pre>
-          <a href="/edit/{{Name}}">edit</a>
-          <a href="/delete/{{Name}}">delete</a>
         </li>
       {{/Repos}}
     </ul>

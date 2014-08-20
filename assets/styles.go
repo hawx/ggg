@@ -65,10 +65,6 @@ a:hover {
   color: #cb231c;
 }
 
-a:visited {
-  color: #552b66;
-}
-
 #meta {
   margin-top: 2em;
   color: #666;
@@ -93,8 +89,14 @@ footer hr {
 }
 
 .repo {
-    padding-left: 1.3em;
-    margin: 2.6em 0;
+  padding: 0 1.3rem;
+  margin: 1.3rem 0;
+  position: relative;
+  border: 1px solid transparent;
+}
+
+.repo.private {
+  border: 1px solid #aaa;
 }
 
 .name a {
@@ -115,9 +117,21 @@ input[type=text] {
   width: 100%;
 }
 
+input[type=submit] {
+  margin: 1rem 0;
+}
+
 label {
   color: #aaa;
   font-style: italic;
   margin: 0.3em 0;
 }
+
+.repo > .buttons {
+  position: absolute;
+  margin-left: 1em;
+  top: 1.3rem;
+  right: 1.3rem;
+}
+
 `

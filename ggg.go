@@ -45,7 +45,14 @@ func Log(handler http.Handler) http.Handler {
 
 func List(db repos.Db) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body := views.List.Render(Ctx{*title, *description, *url, db.GetAll()})
+		repos := repos.Repos{}
+		for _, repo := range db.GetAll() {
+			if !repo.IsPrivate {
+				repos = append(repos, repo)
+			}
+		}
+
+		body := views.List.Render(Ctx{*title, *description, *url, repos})
 		w.Header().Add("Content-Type", "text/html")
 		fmt.Fprintf(w, body)
 	})
@@ -67,7 +74,7 @@ func Create(db repos.Db) http.Handler {
 			fmt.Fprintf(w, body)
 		} else if r.Method == "POST" {
 			r.ParseForm()
-			db.Create(r.PostForm["name"][0], r.PostForm["web"][0], r.PostForm["description"][0])
+			db.Create(r.PostForm["name"][0], r.PostForm["web"][0], r.PostForm["description"][0], len(r.PostForm["private"]) != 0)
 			http.Redirect(w, r, "/", 302)
 		}
 	})
@@ -86,6 +93,7 @@ func Edit(db repos.Db) http.Handler {
 			r.ParseForm()
 			repo.Description = r.PostForm["description"][0]
 			repo.Web = r.PostForm["web"][0]
+			repo.IsPrivate = len(r.PostForm["private"]) != 0
 			db.Save(repo)
 			http.Redirect(w, r, "/", 302)
 		}

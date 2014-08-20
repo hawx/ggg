@@ -16,6 +16,7 @@ type Repo struct {
 	Web         string
 	Description string
 	Path        string
+	IsPrivate   bool
 }
 
 func (r Repo) CloneUrl() string {
@@ -24,8 +25,8 @@ func (r Repo) CloneUrl() string {
 
 type Db interface {
 	GetAll() Repos
-	Get(string) Repo
-	Create(name, web, description string)
+	Get(name string) Repo
+	Create(name, web, description string, isPrivate bool)
 	Save(Repo)
 	Delete(Repo)
 	Close()
@@ -52,9 +53,9 @@ func Open(path, gitDir string) Db {
 	return BoltDb{db, gitDir}
 }
 
-func (db BoltDb) Create(name, web, description string) {
+func (db BoltDb) Create(name, web, description string, isPrivate bool) {
 	path := filepath.Join(db.gitDir, name) + ".git"
-	repo := Repo{name, web, description, path}
+	repo := Repo{name, web, description, path, isPrivate}
 
 	os.Mkdir(path, 0755)
 	git.Exec(path, "init", "--bare")
