@@ -25,7 +25,7 @@ var (
 	description  = config.String("description", "My own, personal git-server.")
 	gitDir       = config.String("gitDir", "./ggg-git")
 	dbPath       = config.String("dbPath", "./ggg-db")
-	user         = config.String("user", "m@hawx.me")
+	user         = config.String("user", "someone@example.com")
 	url          = config.String("url", "http://localhost:8080")
 )
 
@@ -134,6 +134,6 @@ func main() {
 		"core.js":    assets.Core,
 	})))
 
-	log.Println("Running on :8080")
-	log.Fatal(http.ListenAndServe(":8080", context.ClearHandler(Log(http.DefaultServeMux))))
+	log.Println("Running on :" + *port)
+	log.Fatal(http.ListenAndServe(":" + *port, context.ClearHandler(Log(http.DefaultServeMux))))
 }
