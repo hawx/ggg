@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/gorilla/context"
+	"github.com/gorilla/mux"
 	"github.com/hawx/ggg/assets"
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/views"
@@ -12,7 +12,6 @@ import (
 	"github.com/stvp/go-toml-config"
 	"log"
 	"net/http"
-	"path/filepath"
 )
 
 var (
@@ -66,47 +65,50 @@ func Admin(db repos.Db) http.Handler {
 	})
 }
 
-func Create(db repos.Db) http.Handler {
+func CreateGet(db repos.Db) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
-			body := views.Create.Render()
-			w.Header().Add("Content-Type", "text/html")
-			fmt.Fprintf(w, body)
-		} else if r.Method == "POST" {
-			r.ParseForm()
-			db.Create(r.PostForm["name"][0], r.PostForm["web"][0], r.PostForm["description"][0], len(r.PostForm["private"]) != 0)
-			http.Redirect(w, r, "/", 302)
-		}
+		body := views.Create.Render()
+		w.Header().Add("Content-Type", "text/html")
+		fmt.Fprintf(w, body)
 	})
 }
 
-func Edit(db repos.Db) http.Handler {
+func CreatePost(db repos.Db) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repoName := filepath.Base(r.URL.Path)
+		db.Create(r.FormValue("name"), r.FormValue("web"), r.FormValue("description"), r.FormValue("private") == "private")
+		http.Redirect(w, r, "/", 302)
+	})
+}
+
+func EditGet(db repos.Db) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		repoName := mux.Vars(r)["name"]
 		repo := db.Get(repoName)
 
-		if r.Method == "GET" {
-			body := views.Edit.Render(repo)
-			w.Header().Add("Content-Type", "text/html")
-			fmt.Fprintf(w, body)
-		} else if r.Method == "POST" {
-			r.ParseForm()
-			repo.Description = r.PostForm["description"][0]
-			repo.Web = r.PostForm["web"][0]
-			repo.IsPrivate = len(r.PostForm["private"]) != 0
-			db.Save(repo)
-			http.Redirect(w, r, "/", 302)
-		}
+		body := views.Edit.Render(repo)
+		w.Header().Add("Content-Type", "text/html")
+		fmt.Fprintf(w, body)
+	})
+}
+
+func EditPost(db repos.Db) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		repoName := mux.Vars(r)["name"]
+		repo := db.Get(repoName)
+
+		repo.Description = r.FormValue("description")
+		repo.Web = r.FormValue("web")
+		repo.IsPrivate = r.FormValue("private") == "private"
+		db.Save(repo)
+		http.Redirect(w, r, "/", 302)
 	})
 }
 
 func Delete(db repos.Db) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
-			repoName := filepath.Base(r.URL.Path)
-			db.Delete(db.Get(repoName))
-			http.Redirect(w, r, "/", 302)
-		}
+		repoName := mux.Vars(r)["name"]
+		db.Delete(db.Get(repoName))
+		http.Redirect(w, r, "/", 302)
 	})
 }
 
@@ -121,19 +123,25 @@ func main() {
 	defer db.Close()
 
 	store := persona.NewStore(*cookieSecret)
-	protect := persona.Conditional(store, []string{*user})
+	protect := persona.Protector(strore, []string{*user})
+	cond := persona.Conditional(store, []string{*user})
 
-	http.Handle("/", protect(Admin(db), List(db)))
-	http.Handle("/create", protect(Create(db), http.NotFoundHandler()))
-	http.Handle("/edit/", protect(Edit(db), http.NotFoundHandler()))
-	http.Handle("/delete/", protect(Delete(db), http.NotFoundHandler()))
-	http.Handle("/sign-in", persona.SignIn(store, *audience))
-	http.Handle("/sign-out", persona.SignOut(store))
+	r := mux.NewRouter()
+	r.Methods("GET").Path("/").Handler(cond(Admin(db), List(db)))
+	r.Methods("GET").Path("/create").Handler(protect(CreateGet(db)))
+	r.Methods("GET").Path("/create").Handler(protect(CreatePost(db)))
+	r.Methods("GET").Path("/edit/{name}").Handler(protect(EditGet(db)))
+	r.Methods("POST").Path("/edit/{name}").Handler(protect(EditPost(db)))
+	r.Methods("GET").Path("/delete/{name}").Handler(protect(Delete(db)))
+	r.Methods("POST").Path("/sign-in").Handler(persona.SignIn(store, *audience))
+	r.Methods("GET").Path("/sign-out").Handler(persona.SignOut(store))
+
+	http.Handle("/", r)
 	http.Handle("/assets/", http.StripPrefix("/assets/", asset.Server(map[string]string{
 		"styles.css": assets.Styles,
 		"core.js":    assets.Core,
 	})))
 
 	log.Println("Running on :" + *port)
-	log.Fatal(http.ListenAndServe(":" + *port, context.ClearHandler(Log(http.DefaultServeMux))))
+	log.Fatal(http.ListenAndServe(":"+*port, Log(http.DefaultServeMux)))
 }
