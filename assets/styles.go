@@ -1,6 +1,6 @@
 package assets
 
-const Styles = `
+const styles = `
 html, body {
   height: 100%;
   width: 100%;

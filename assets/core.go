@@ -1,6 +1,6 @@
 package assets
 
-const Core = `
+const core = `
 function gotAssertion(assertion) {
     // got an assertion, now send it up to the server for verification
     if (assertion !== null) {

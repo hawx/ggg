@@ -7,7 +7,6 @@ import (
 	"github.com/hawx/ggg/assets"
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/views"
-	asset "github.com/hawx/wwwhat/assets"
 	"github.com/hawx/wwwhat/persona"
 	"github.com/stvp/go-toml-config"
 	"log"
@@ -62,6 +61,22 @@ func Admin(db repos.Db) http.Handler {
 		body := views.Admin.Render(Ctx{*title, *description, *url, db.GetAll()})
 		w.Header().Add("Content-Type", "text/html")
 		fmt.Fprintf(w, body)
+	})
+}
+
+func RepoGet(db repos.Db) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		name := mux.Vars(r)["name"]
+		repoName := name[:len(name)-4]
+		repo := db.Get(repoName)
+
+		if repo.IsPrivate {
+			http.NotFound(w, r)
+			return
+		}
+
+		http.StripPrefix("/" + name + "/",
+			http.FileServer(http.Dir(repo.Path))).ServeHTTP(w, r)
 	})
 }
 
@@ -123,25 +138,23 @@ func main() {
 	defer db.Close()
 
 	store := persona.NewStore(*cookieSecret)
-	protect := persona.Protector(strore, []string{*user})
+	protect := persona.Protector(store, []string{*user})
 	cond := persona.Conditional(store, []string{*user})
 
 	r := mux.NewRouter()
 	r.Methods("GET").Path("/").Handler(cond(Admin(db), List(db)))
+	r.Methods("GET").PathPrefix("/{name:.+\\.git}/").Handler(RepoGet(db))
 	r.Methods("GET").Path("/create").Handler(protect(CreateGet(db)))
-	r.Methods("GET").Path("/create").Handler(protect(CreatePost(db)))
+	r.Methods("POST").Path("/create").Handler(protect(CreatePost(db)))
 	r.Methods("GET").Path("/edit/{name}").Handler(protect(EditGet(db)))
 	r.Methods("POST").Path("/edit/{name}").Handler(protect(EditPost(db)))
 	r.Methods("GET").Path("/delete/{name}").Handler(protect(Delete(db)))
 	r.Methods("POST").Path("/sign-in").Handler(persona.SignIn(store, *audience))
 	r.Methods("GET").Path("/sign-out").Handler(persona.SignOut(store))
+	r.Methods("GET").Path("/assets/styles.css").Handler(assets.Styles)
+	r.Methods("GET").Path("/assets/core.js").Handler(assets.Core)
 
 	http.Handle("/", r)
-	http.Handle("/assets/", http.StripPrefix("/assets/", asset.Server(map[string]string{
-		"styles.css": assets.Styles,
-		"core.js":    assets.Core,
-	})))
-
 	log.Println("Running on :" + *port)
 	log.Fatal(http.ListenAndServe(":"+*port, Log(http.DefaultServeMux)))
 }
