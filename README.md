@@ -9,3 +9,9 @@ $ ggg
 Running on port :8080
 ...
 ```
+
+Features:
+
+- Public repos over http
+- Create / edit / delete repos
+- Private repos (not over http)
