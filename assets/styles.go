@@ -1,112 +1,154 @@
 package assets
 
 const styles = `
-html, body {
-  height: 100%;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-}
-
 body {
-  font: 13px/1.3em Menlo, monospace;
-  padding: 1em 2em;
-  max-width: 44em;
-  width: auto;
-  height: auto;
+    font: 14px/1.3 Verdana, Geneva, sans-serif;
+    margin: 2.6rem auto 0;
+    padding: 0 1.3rem;
+    max-width: 40em;
 }
 
-h1 {
-  font-size: 16px;
-  margin: 2rem 0 1rem;
+body.single {
+    max-width: 80em;
 }
 
-h2 {
-  font-size: 14px;
-  margin: 1.5rem 0 0.5rem;
+header {
+    margin: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
 }
 
-h3 {
-  font-size: 13px;
-  font-weight: normal;
-  text-decoration: underline;
-  margin: 1.5rem 0 0.5rem;
+header h1 {
+    font-size: 1.5em;
 }
 
-ul {
-  padding-left: 1.3em;
-}
-
-li.pad, p {
-  margin: 1.3em 0;
-}
-
-code {
-  font-family: Menlo, monospace;
-  background: #eee;
-}
-
-pre > code {
-  padding: 0;
-  background: none;
-}
-
-pre {
-  background: #eee;
-  padding: .7em 1.3em;
-  font-family: Menlo, monospace;
-}
-
-a {
-  color: #761410;
-}
-
-a:hover {
-  color: #cb231c;
-}
-
-#meta {
-  margin-top: 2em;
-  color: #666;
-}
-
-footer {
-  margin-top: 2em;
-}
-
-footer hr {
-  border: none;
-  height: 1px;
-  width: 7rem;
-  margin: 2.5rem 0 0.5rem;
-  background: #aaa;
+header div a {
+    margin-left: 1em;
 }
 
 .repos {
+    width: 100%;
     list-style: none;
-    margin-left: 0;
-    padding-left: 0;
+    padding: 0;
+    margin: 1.3rem 0;
 }
 
-.repo {
-  padding: 0 1.3rem;
-  margin: 1.3rem 0;
-  position: relative;
-  border: 1px solid transparent;
+.repos .repo {
+    margin: 1.3rem 0;
+    width: 100%;
+    position: relative;
 }
 
-.repo.private {
-  border: 1px solid #aaa;
+.repo h1 {
+    font-size: 1.2em;
 }
 
-.name a {
-    text-decoration: underline;
+.repo h1 a {
+    text-decoration: none;
 }
 
-header > a {
-  float: right;
-  margin-top: 1px;
-  margin-left: 1em;
+.repo .meta {
+    color: #666;
+}
+
+.repos .repo .meta.updated {
+    text-align: right;
+}
+
+.repo .meta.tags {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+
+.repo .meta.tags li {
+    margin-left: .5rem;
+}
+
+.repo .meta.tags li a {
+    text-decoration: none;
+    color: #A51;
+}
+
+.clone {
+    margin: 1.3rem 0;
+}
+
+footer {
+    margin: 1.3rem;
+    font-style: italic;
+}
+
+
+.clone span {
+    font-style: italic;
+}
+
+.clone code {
+    background: #efefef;
+}
+
+hr {
+    margin: 1.3rem auto;
+    border: none;
+    height: 0;
+    width: 66%;
+    border-bottom: 1px solid #ccc;
+}
+
+figure {
+   margin: 0;
+   border: 1px solid #bbb;
+}
+
+figure figcaption {
+    border-bottom: 1px solid #ddd;
+    padding: 0.65rem 0.65rem;
+    margin: 0 0.65rem;
+}
+
+figure figcaption h3 {
+    margin: 0;
+    font-size: .75rem;
+    letter-spacing: .01rem;
+    font-variant: small-caps;
+}
+
+figure article {
+    padding: 0.65rem 1.3rem;
+}
+
+
+/* flex */
+.repos .repo {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.single {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.single > div {
+    flex: 1;
+    margin-right: 2.6rem;
+}
+
+.single > aside {
+    flex: 2;
+}
+
+.repo .buttons {
+  position: absolute;
+  right: -100px;
+  top: 14px;
 }
 
 input[type=text] {
@@ -127,11 +169,18 @@ label {
   margin: 0.3em 0;
 }
 
-.repo > .buttons {
-  position: absolute;
-  margin-left: 1em;
-  top: 1.3rem;
-  right: 1.3rem;
-}
+@media screen and (max-width: 60rem) {
+    body.single {
+        max-width: 40rem;
+        flex-direction: column;
+    }
 
+    .clone, body.single > div hr {
+        display: none;
+    }
+
+    aside {
+        margin: 2.6rem 0;
+    }
+}
 `

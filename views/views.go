@@ -1,10 +1,11 @@
 package views
 
-import "github.com/hoisie/mustache"
+import "html/template"
 
 var (
-	List,   _ = mustache.ParseString(list)
-	Admin,  _ = mustache.ParseString(admin)
-	Create, _ = mustache.ParseString(create)
-	Edit,   _ = mustache.ParseString(edit)
+	List   = template.Must(template.New("list").Parse(list))
+	Admin  = template.Must(template.New("admin").Parse(admin))
+	Create = template.Must(template.New("create").Parse(create))
+	Edit   = template.Must(template.New("edit").Parse(edit))
+	Repo   = template.Must(template.New("repo").Parse(repo))
 )

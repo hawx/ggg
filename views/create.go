@@ -22,6 +22,9 @@ const create = `<!DOCTYPE html>
       <label for="description">Description</label>
       <input name="description" id="description" type="text" />
 
+      <label for="tags">Tags</label>
+      <input name="tags" id="tags" type="text" />
+
       <label for="private">Private?</label>
       <input name="private" id="private" type="checkbox" value="private" />
       <br/>

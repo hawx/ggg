@@ -1,12 +1,18 @@
 package repos
 
 import (
-	"encoding/json"
-	"github.com/boltdb/bolt"
 	"github.com/hawx/ggg/git"
+
+	"github.com/boltdb/bolt"
+	"github.com/shurcooL/go/github_flavored_markdown"
+
+	"encoding/json"
+	"html/template"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
 type Repos []*Repo
@@ -15,7 +21,9 @@ type Repo struct {
 	Name        string
 	Web         string
 	Description string
+	Tags        string
 	Path        string
+	LastUpdate  time.Time
 	IsPrivate   bool
 }
 
@@ -23,10 +31,23 @@ func (r Repo) CloneUrl() string {
 	return r.Name + ".git"
 }
 
+func (r Repo) TagsList() []string {
+	return strings.Split(r.Tags, " ")
+}
+
+func (r Repo) Readme() template.HTML {
+	text, err := git.ReadFile(r.Path, "README.md")
+	if err != nil {
+		return "&hellip;"
+	}
+
+	return template.HTML(github_flavored_markdown.Markdown([]byte(text)))
+}
+
 type Db interface {
 	GetAll() Repos
 	Get(name string) Repo
-	Create(name, web, description string, isPrivate bool)
+	Create(name, web, description, tags string, isPrivate bool)
 	Save(Repo)
 	Delete(Repo)
 	Close()
@@ -53,17 +74,11 @@ func Open(path, gitDir string) Db {
 	return BoltDb{db, gitDir}
 }
 
-func (db BoltDb) Create(name, web, description string, isPrivate bool) {
+func (db BoltDb) Create(name, web, description, tags string, isPrivate bool) {
 	path := filepath.Join(db.gitDir, name) + ".git"
-	repo := Repo{name, web, description, path, isPrivate}
+	repo := Repo{name, web, description, tags, path, time.Now(), isPrivate}
 
-	os.Mkdir(path, 0755)
-	git.Exec(path, "init", "--bare")
-
-	hook := filepath.Join(path, "hooks", "post-update")
-	os.Rename(filepath.Join(path, "hooks", "post-update.sample"), hook)
-	git.Exec(path, "update-server-info")
-
+	git.CreateRepo(path)
 	db.Save(repo)
 }
 

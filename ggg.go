@@ -1,14 +1,17 @@
 package main
 
 import (
-	"flag"
-	"fmt"
-	"github.com/gorilla/mux"
 	"github.com/hawx/ggg/assets"
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/views"
-	"github.com/hawx/wwwhat/persona"
+	"github.com/hawx/ggg/web/filters"
+	"github.com/hawx/ggg/web/handlers"
+
+	"github.com/gorilla/mux"
+	"github.com/hawx/persona"
 	"github.com/stvp/go-toml-config"
+
+	"flag"
 	"log"
 	"net/http"
 )
@@ -34,13 +37,6 @@ type Ctx struct {
 	Repos       repos.Repos
 }
 
-func Log(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("%s %s", r.Method, r.URL)
-		handler.ServeHTTP(w, r)
-	})
-}
-
 func List(db repos.Db) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		repos := repos.Repos{}
@@ -50,82 +46,18 @@ func List(db repos.Db) http.Handler {
 			}
 		}
 
-		body := views.List.Render(Ctx{*title, *description, *url, repos})
 		w.Header().Add("Content-Type", "text/html")
-		fmt.Fprintf(w, body)
+		views.List.Execute(w, Ctx{*title, *description, *url, repos})
 	})
 }
 
 func Admin(db repos.Db) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body := views.Admin.Render(Ctx{*title, *description, *url, db.GetAll()})
 		w.Header().Add("Content-Type", "text/html")
-		fmt.Fprintf(w, body)
+		views.Admin.Execute(w, Ctx{*title, *description, *url, db.GetAll()})
 	})
 }
 
-func RepoGet(db repos.Db) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := mux.Vars(r)["name"]
-		repoName := name[:len(name)-4]
-		repo := db.Get(repoName)
-
-		if repo.IsPrivate {
-			http.NotFound(w, r)
-			return
-		}
-
-		http.StripPrefix("/" + name + "/",
-			http.FileServer(http.Dir(repo.Path))).ServeHTTP(w, r)
-	})
-}
-
-func CreateGet(db repos.Db) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body := views.Create.Render()
-		w.Header().Add("Content-Type", "text/html")
-		fmt.Fprintf(w, body)
-	})
-}
-
-func CreatePost(db repos.Db) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		db.Create(r.FormValue("name"), r.FormValue("web"), r.FormValue("description"), r.FormValue("private") == "private")
-		http.Redirect(w, r, "/", 302)
-	})
-}
-
-func EditGet(db repos.Db) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repoName := mux.Vars(r)["name"]
-		repo := db.Get(repoName)
-
-		body := views.Edit.Render(repo)
-		w.Header().Add("Content-Type", "text/html")
-		fmt.Fprintf(w, body)
-	})
-}
-
-func EditPost(db repos.Db) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repoName := mux.Vars(r)["name"]
-		repo := db.Get(repoName)
-
-		repo.Description = r.FormValue("description")
-		repo.Web = r.FormValue("web")
-		repo.IsPrivate = r.FormValue("private") == "private"
-		db.Save(repo)
-		http.Redirect(w, r, "/", 302)
-	})
-}
-
-func Delete(db repos.Db) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repoName := mux.Vars(r)["name"]
-		db.Delete(db.Get(repoName))
-		http.Redirect(w, r, "/", 302)
-	})
-}
 
 func main() {
 	flag.Parse()
@@ -138,23 +70,35 @@ func main() {
 	defer db.Close()
 
 	store := persona.NewStore(*cookieSecret)
-	protect := persona.Protector(store, []string{*user})
-	cond := persona.Conditional(store, []string{*user})
+	persona := persona.New(store, *audience, []string{*user})
 
 	r := mux.NewRouter()
-	r.Methods("GET").Path("/").Handler(cond(Admin(db), List(db)))
-	r.Methods("GET").PathPrefix("/{name:.+\\.git}/").Handler(RepoGet(db))
-	r.Methods("GET").Path("/create").Handler(protect(CreateGet(db)))
-	r.Methods("POST").Path("/create").Handler(protect(CreatePost(db)))
-	r.Methods("GET").Path("/edit/{name}").Handler(protect(EditGet(db)))
-	r.Methods("POST").Path("/edit/{name}").Handler(protect(EditPost(db)))
-	r.Methods("GET").Path("/delete/{name}").Handler(protect(Delete(db)))
-	r.Methods("POST").Path("/sign-in").Handler(persona.SignIn(store, *audience))
-	r.Methods("GET").Path("/sign-out").Handler(persona.SignOut(store))
+	r.Methods("GET").Path("/").Handler(persona.Switch(Admin(db), List(db)))
+
+	repo := handlers.Repo(db)
+	r.Methods("GET").PathPrefix("/{name:.+\\.git}/").Handler(repo.Git)
+
+	create := handlers.Create(db)
+	r.Methods("GET").Path("/create").Handler(persona.Protect(create.Get))
+	r.Methods("POST").Path("/create").Handler(persona.Protect(create.Post))
+
+	edit := handlers.Edit(db)
+	r.Methods("GET").Path("/edit/{name}").Handler(persona.Protect(edit.Get))
+	r.Methods("POST").Path("/edit/{name}").Handler(persona.Protect(edit.Post))
+
+	delete := handlers.Delete(db)
+	r.Methods("GET").Path("/delete/{name}").Handler(persona.Protect(delete))
+
+	r.Methods("POST").Path("/sign-in").Handler(persona.SignIn)
+	r.Methods("GET").Path("/sign-out").Handler(persona.SignOut)
+
 	r.Methods("GET").Path("/assets/styles.css").Handler(assets.Styles)
 	r.Methods("GET").Path("/assets/core.js").Handler(assets.Core)
 
+	r.Methods("GET").PathPrefix("/{name}").Handler(repo.Html)
+
 	http.Handle("/", r)
+
 	log.Println("Running on :" + *port)
-	log.Fatal(http.ListenAndServe(":"+*port, Log(http.DefaultServeMux)))
+	log.Fatal(http.ListenAndServe(":"+*port, filters.Log(http.DefaultServeMux)))
 }
