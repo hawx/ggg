@@ -15,3 +15,4 @@ Features:
 - Public repos over http
 - Create / edit / delete repos
 - Private repos (not over http)
+- Import from GitHub (`go get github.com/hawx/ggg/cmd/ggg-import-github`)
