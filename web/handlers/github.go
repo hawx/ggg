@@ -1,27 +1,27 @@
 package handlers
 
 import (
-	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/git"
+	"github.com/hawx/ggg/repos"
 
 	"code.google.com/p/goauth2/oauth"
 	"github.com/google/go-github/github"
 
-	"net/http"
 	"log"
+	"net/http"
 )
 
 func GitHub(db repos.Db, token string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		t := &oauth.Transport{
-		  Token: &oauth.Token{AccessToken: token},
+			Token: &oauth.Token{AccessToken: token},
 		}
 
 		client := github.NewClient(t.Client())
 
 		// list all repositories for the authenticated user
 		repos, _, _ := client.Repositories.List("", &github.RepositoryListOptions{
-		  Type: "owner",
+			Type: "owner",
 		})
 
 		for _, repo := range repos {

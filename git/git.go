@@ -1,8 +1,8 @@
 package git
 
 import (
-	"log"
 	"errors"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"

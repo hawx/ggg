@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/hawx/ggg/repos"
-	"github.com/hawx/ggg/views"
+	"github.com/hawx/ggg/web/views"
 
 	"github.com/gorilla/mux"
 

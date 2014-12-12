@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/hawx/ggg/repos"
-	"github.com/hawx/ggg/views"
+	"github.com/hawx/ggg/web/views"
 
 	"github.com/gorilla/mux"
 
@@ -13,8 +13,8 @@ func Edit(db repos.Db) EditHandler {
 	h := editHandler{db}
 
 	return EditHandler{
-	  Get: h.Get(),
-    Post: h.Post(),
+		Get:  h.Get(),
+		Post: h.Post(),
 	}
 }
 
@@ -24,7 +24,7 @@ type EditHandler struct {
 }
 
 type editHandler struct {
-	db  repos.Db
+	db repos.Db
 }
 
 func (h editHandler) Get() http.Handler {

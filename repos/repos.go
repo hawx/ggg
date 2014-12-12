@@ -11,8 +11,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
 	"sort"
+	"time"
 )
 
 type ByName []Repo

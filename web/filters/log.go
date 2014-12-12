@@ -1,8 +1,8 @@
 package filters
 
 import (
-	"net/http"
 	"log"
+	"net/http"
 )
 
 func Log(handler http.Handler) http.Handler {

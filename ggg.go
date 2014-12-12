@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/hawx/ggg/assets"
 	"github.com/hawx/ggg/repos"
-	"github.com/hawx/ggg/views"
+	"github.com/hawx/ggg/web/assets"
 	"github.com/hawx/ggg/web/filters"
 	"github.com/hawx/ggg/web/handlers"
+	"github.com/hawx/ggg/web/views"
 
 	"github.com/gorilla/mux"
 	"github.com/hawx/persona"
@@ -31,9 +31,9 @@ var (
 )
 
 type Ctx struct {
-	Title       string
-	Url         string
-	Repos       []repos.Repo
+	Title string
+	Url   string
+	Repos []repos.Repo
 }
 
 func List(db repos.Db) http.Handler {
@@ -56,7 +56,6 @@ func Admin(db repos.Db) http.Handler {
 		views.Admin.Execute(w, Ctx{*title, *url, db.GetAll()})
 	})
 }
-
 
 func main() {
 	flag.Parse()

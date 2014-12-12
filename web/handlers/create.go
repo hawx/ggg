@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/hawx/ggg/repos"
-	"github.com/hawx/ggg/views"
 	"github.com/hawx/ggg/git"
+	"github.com/hawx/ggg/repos"
+	"github.com/hawx/ggg/web/views"
 
 	"net/http"
 )
@@ -12,8 +12,8 @@ func Create(db repos.Db) CreateHandler {
 	h := createHandler{db}
 
 	return CreateHandler{
-	  Get: h.Get(),
-	  Post: h.Post(),
+		Get:  h.Get(),
+		Post: h.Post(),
 	}
 }
 
