@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/web/assets"
+	"github.com/hawx/ggg/web/views"
 	"github.com/hawx/ggg/web/filters"
 	"github.com/hawx/ggg/web/handlers"
-	"github.com/hawx/ggg/web/views"
 
 	"github.com/gorilla/mux"
 	"github.com/hawx/persona"
@@ -27,13 +27,12 @@ var (
 	dbPath       = config.String("dbPath", "./ggg-data/db")
 	user         = config.String("user", "someone@example.com")
 	url          = config.String("url", "http://localhost:8080")
-	token        = config.String("token", "")
 )
 
 type Ctx struct {
-	Title string
-	Url   string
-	Repos []repos.Repo
+	Title       string
+	Url         string
+	Repos       []repos.Repo
 }
 
 func List(db repos.Db) http.Handler {
@@ -57,6 +56,7 @@ func Admin(db repos.Db) http.Handler {
 	})
 }
 
+
 func main() {
 	flag.Parse()
 
@@ -72,9 +72,6 @@ func main() {
 
 	r := mux.NewRouter()
 	r.Methods("GET").Path("/").Handler(persona.Switch(Admin(db), List(db)))
-
-	github := handlers.GitHub(db, *token)
-	r.Methods("GET").Path("/github").Handler(github)
 
 	create := handlers.Create(db)
 	r.Methods("GET").Path("/create").Handler(persona.Protect(create.Get))
