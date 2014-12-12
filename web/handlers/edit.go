@@ -44,7 +44,6 @@ func (h editHandler) Post() http.Handler {
 
 		repo.Web = r.FormValue("web")
 		repo.Description = r.FormValue("description")
-		repo.Tags = r.FormValue("tags")
 		repo.IsPrivate = r.FormValue("private") == "private"
 		h.db.Save(repo)
 		http.Redirect(w, r, "/", 302)

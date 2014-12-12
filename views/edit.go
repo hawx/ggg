@@ -3,33 +3,36 @@ package views
 const edit = `<!DOCTYPE html>
 <html>
   <head>
-    <title>git</title>
+    <meta charset="utf-8" />
+    <title>edit</title>
     <link rel="stylesheet" href="/assets/styles.css"></link>
   </head>
   <body>
     <header>
-      <a href="/">home</a>
-      <h1>git</h1>
+      <div class="container">
+        <h1>edit</h1>
+        <a href="/">home</a>
+        <a href="/sign-out">sign-out</a>
+      </div>
     </header>
 
-    <form method="POST" action="/edit/{{.Name}}">
-      <label for="name">Name</label>
-      <input name="name" id="name" type="text" value="{{.Name}}" disabled="disabled" />
+    <div class="container">
+      <form method="POST" action="/edit/{{.Name}}">
+        <label for="name">Name</label>
+        <input name="name" id="name" type="text" value="{{.Name}}" disabled="disabled" />
 
-      <label for="web">Web</label>
-      <input name="web" id="web" type="text" value="{{.Web}}" />
+        <label for="web">Web</label>
+        <input name="web" id="web" type="text" value="{{.Web}}" />
 
-      <label for="description">Description</label>
-      <input name="description" id="description" type="text" value="{{.Description}}" />
+        <label for="description">Description</label>
+        <input name="description" id="description" type="text" value="{{.Description}}" />
 
-      <label for="tags">Tags</label>
-      <input name="tags" id="tags" type="text" value="{{.Tags}}" />
+        <label for="private">Private?</label>
+        <input name="private" id="private" type="checkbox" value="private" {{if .IsPrivate}}checked="checked"{{end}} />
+        <br/>
 
-      <label for="private">Private?</label>
-      <input name="private" id="private" type="checkbox" value="private" {{if .IsPrivate}}checked="checked"{{end}} />
-      <br/>
-
-      <input type="submit" value="Save" />
-    </form>
+        <input type="submit" value="Save" />
+      </form>
+    </div>
   </body>
 </html>`

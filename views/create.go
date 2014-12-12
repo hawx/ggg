@@ -3,33 +3,36 @@ package views
 const create = `<!DOCTYPE html>
 <html>
   <head>
-    <title>git</title>
+    <meta charset="utf-8" />
+    <title>create</title>
     <link rel="stylesheet" href="/assets/styles.css"></link>
   </head>
   <body>
     <header>
-      <a href="/">home</a>
-      <h1>git</h1>
+      <div class="container">
+        <h1>create</h1>
+        <a href="/">home</a>
+        <a href="/sign-out">sign-out</a>
+      </div>
     </header>
 
-    <form method="POST" action="/create">
-      <label for="name">Name</label>
-      <input name="name" id="name" type="text" />
+    <div class="container">
+      <form method="POST" action="/create">
+        <label for="name">Name</label>
+        <input name="name" id="name" type="text" />
 
-      <label for="web">Web</label>
-      <input name="web" id="web" type="text" />
+        <label for="web">Web</label>
+        <input name="web" id="web" type="text" />
 
-      <label for="description">Description</label>
-      <input name="description" id="description" type="text" />
+        <label for="description">Description</label>
+        <input name="description" id="description" type="text" />
 
-      <label for="tags">Tags</label>
-      <input name="tags" id="tags" type="text" />
+        <label for="private">Private?</label>
+        <input name="private" id="private" type="checkbox" value="private" />
+        <br/>
 
-      <label for="private">Private?</label>
-      <input name="private" id="private" type="checkbox" value="private" />
-      <br/>
-
-      <input type="submit" value="Create" />
-    </form>
+        <input type="submit" value="Create" />
+      </form>
+    </div>
   </body>
 </html>`

@@ -1,6 +1,7 @@
 package git
 
 import (
+	"log"
 	"errors"
 	"os"
 	"os/exec"
@@ -8,14 +9,24 @@ import (
 	"strings"
 )
 
+func GetBranch(path string) (string, error) {
+	for _, branch := range strings.Split(run(path, "branch"), "\n") {
+		if len(branch) > 0 && branch[0] == 42 {
+			return run(path, "rev-parse", branch[2:]), nil
+		}
+	}
+
+	return "", errors.New("No active branch found")
+}
+
 func ReadFile(path, file string) (string, error) {
-	masterRef := run(path, "rev-parse", "master")
-	if masterRef == "" {
-		return "", errors.New("No such branch: master")
+	branchRef, err := GetBranch(path)
+	if err != nil {
+		return "", err
 	}
 
 	ref := ""
-	for _, row := range strings.Split(run(path, "ls-tree", masterRef), "\n") {
+	for _, row := range strings.Split(run(path, "ls-tree", branchRef), "\n") {
 		cols := strings.Fields(row)
 
 		if cols[3] == file && cols[1] == "blob" {
@@ -34,6 +45,16 @@ func ReadFile(path, file string) (string, error) {
 func CreateRepo(path string) {
 	os.Mkdir(path, 0755)
 	run(path, "init", "--bare")
+
+	sampleHook := filepath.Join(path, "hooks", "post-update.sample")
+	hook := filepath.Join(path, "hooks", "post-update") // need to replace with hook that calls ggg!
+	os.Rename(sampleHook, hook)
+	run(path, "update-server-info")
+}
+
+func CopyRepo(path, remoteUrl string) {
+	log.Println("git clone --bare", remoteUrl, path)
+	run("", "clone", "--bare", remoteUrl, path)
 
 	sampleHook := filepath.Join(path, "hooks", "post-update.sample")
 	hook := filepath.Join(path, "hooks", "post-update") // need to replace with hook that calls ggg!

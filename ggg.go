@@ -22,24 +22,23 @@ var (
 
 	audience     = config.String("audience", "localhost")
 	cookieSecret = config.String("secret", "change-me")
-	title        = config.String("title", "git")
-	description  = config.String("description", "My own, personal git-server.")
-	gitDir       = config.String("gitDir", "./ggg-git")
-	dbPath       = config.String("dbPath", "./ggg-db")
+	title        = config.String("title", "ggg")
+	gitDir       = config.String("gitDir", "./ggg-data/repos")
+	dbPath       = config.String("dbPath", "./ggg-data/db")
 	user         = config.String("user", "someone@example.com")
 	url          = config.String("url", "http://localhost:8080")
+	token        = config.String("token", "")
 )
 
 type Ctx struct {
 	Title       string
-	Description string
 	Url         string
-	Repos       repos.Repos
+	Repos       []repos.Repo
 }
 
 func List(db repos.Db) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repos := repos.Repos{}
+		repos := []repos.Repo{}
 		for _, repo := range db.GetAll() {
 			if !repo.IsPrivate {
 				repos = append(repos, repo)
@@ -47,14 +46,14 @@ func List(db repos.Db) http.Handler {
 		}
 
 		w.Header().Add("Content-Type", "text/html")
-		views.List.Execute(w, Ctx{*title, *description, *url, repos})
+		views.List.Execute(w, Ctx{*title, *url, repos})
 	})
 }
 
 func Admin(db repos.Db) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/html")
-		views.Admin.Execute(w, Ctx{*title, *description, *url, db.GetAll()})
+		views.Admin.Execute(w, Ctx{*title, *url, db.GetAll()})
 	})
 }
 
@@ -75,8 +74,8 @@ func main() {
 	r := mux.NewRouter()
 	r.Methods("GET").Path("/").Handler(persona.Switch(Admin(db), List(db)))
 
-	repo := handlers.Repo(db)
-	r.Methods("GET").PathPrefix("/{name:.+\\.git}/").Handler(repo.Git)
+	github := handlers.GitHub(db, *token)
+	r.Methods("GET").Path("/github").Handler(github)
 
 	create := handlers.Create(db)
 	r.Methods("GET").Path("/create").Handler(persona.Protect(create.Get))
@@ -95,6 +94,8 @@ func main() {
 	r.Methods("GET").Path("/assets/styles.css").Handler(assets.Styles)
 	r.Methods("GET").Path("/assets/core.js").Handler(assets.Core)
 
+	repo := handlers.Repo(db, *url)
+	r.Methods("GET").PathPrefix("/{name:.+\\.git}/").Handler(repo.Git)
 	r.Methods("GET").PathPrefix("/{name}").Handler(repo.Html)
 
 	http.Handle("/", r)

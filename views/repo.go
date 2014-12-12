@@ -8,25 +8,19 @@ const repo = `<!DOCTYPE html>
     <link rel="stylesheet" href="/assets/styles.css"></link>
   </head>
   <body class="single">
-
     <div>
-      <header class="repo">
-        <div>
-          <h1><a href="/">↺</a>&ensp;<a href="/{{.Name}}">{{.Name}}</a></h1>
-          <p>{{.Description}}</p>
-        </div>
-        <div>
-          <p class="meta updated">Updated <time datetime="2014-08-05T10:11:11Z">3 days ago</time></p>
-        </div>
-      </header>
+      <div class="repo {{if .IsPrivate}}private{{end}}">
+        <h1><a href="/">↺</a>&ensp;<a href="/{{.Name}}">{{.Name}}</a></h1>
+        {{if .Web}}&rarr; <a href="{{.Web}}">{{.Web}}</a>{{end}}
+        <p>{{.Description}}</p>
+      </div>
 
       <hr/>
 
       <div class="clone">
         <span>git clone</span>
-        <code>https://git.hawx.me/{{.CloneUrl}}</code>
+        <code>{{.Url}}/{{.CloneUrl}}</code>
       </div>
-
     </div>
 
     <aside>

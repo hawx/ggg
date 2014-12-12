@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/views"
+	"github.com/hawx/ggg/git"
 
 	"net/http"
 )
@@ -38,8 +39,10 @@ func (h createHandler) Post() http.Handler {
 			r.FormValue("name"),
 			r.FormValue("web"),
 			r.FormValue("description"),
-			r.FormValue("tags"),
 			r.FormValue("private") == "private")
+
+		created := h.db.Get(r.FormValue("name"))
+		git.CreateRepo(created.Path)
 
 		http.Redirect(w, r, "/", 302)
 	})

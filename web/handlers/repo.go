@@ -9,11 +9,11 @@ import (
 	"net/http"
 )
 
-func Repo(db repos.Db) RepoHandler {
+func Repo(db repos.Db, url string) RepoHandler {
 	h := repoHandler{db}
 
 	return RepoHandler{
-		Html: h.Html(),
+		Html: h.Html(url),
 		Git:  h.Git(),
 	}
 }
@@ -43,7 +43,7 @@ func (h repoHandler) Git() http.Handler {
 	})
 }
 
-func (h repoHandler) Html() http.Handler {
+func (h repoHandler) Html(url string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := mux.Vars(r)["name"]
 		repo := h.db.Get(name)
@@ -54,6 +54,9 @@ func (h repoHandler) Html() http.Handler {
 		}
 
 		w.Header().Add("Content-Type", "text/html")
-		views.Repo.Execute(w, repo)
+		views.Repo.Execute(w, struct {
+			repos.Repo
+			Url string
+		}{repo, url})
 	})
 }

@@ -11,17 +11,28 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
+	"sort"
 )
 
-type Repos []*Repo
+type ByName []Repo
+
+func (s ByName) Len() int {
+	return len(s)
+}
+
+func (s ByName) Less(i, j int) bool {
+	return s[i].Name < s[j].Name
+}
+
+func (s ByName) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
 
 type Repo struct {
 	Name        string
 	Web         string
 	Description string
-	Tags        string
 	Path        string
 	LastUpdate  time.Time
 	IsPrivate   bool
@@ -31,23 +42,24 @@ func (r Repo) CloneUrl() string {
 	return r.Name + ".git"
 }
 
-func (r Repo) TagsList() []string {
-	return strings.Split(r.Tags, " ")
-}
-
 func (r Repo) Readme() template.HTML {
-	text, err := git.ReadFile(r.Path, "README.md")
-	if err != nil {
-		return "&hellip;"
+	for _, file := range []string{"README.md", "Readme.md", "README.markdown"} {
+		text, err := git.ReadFile(r.Path, file)
+		if err != nil {
+			log.Println(r.Name, " Readme(): ", err)
+			continue
+		}
+
+		return template.HTML(github_flavored_markdown.Markdown([]byte(text)))
 	}
 
-	return template.HTML(github_flavored_markdown.Markdown([]byte(text)))
+	return "&hellip;"
 }
 
 type Db interface {
-	GetAll() Repos
+	GetAll() []Repo
 	Get(name string) Repo
-	Create(name, web, description, tags string, isPrivate bool)
+	Create(name, web, description string, isPrivate bool)
 	Save(Repo)
 	Delete(Repo)
 	Close()
@@ -74,16 +86,15 @@ func Open(path, gitDir string) Db {
 	return BoltDb{db, gitDir}
 }
 
-func (db BoltDb) Create(name, web, description, tags string, isPrivate bool) {
+func (db BoltDb) Create(name, web, description string, isPrivate bool) {
 	path := filepath.Join(db.gitDir, name) + ".git"
-	repo := Repo{name, web, description, tags, path, time.Now(), isPrivate}
+	repo := Repo{name, web, description, path, time.Now(), isPrivate}
 
-	git.CreateRepo(path)
 	db.Save(repo)
 }
 
-func (db BoltDb) GetAll() Repos {
-	list := Repos{}
+func (db BoltDb) GetAll() []Repo {
+	list := []Repo{}
 
 	db.me.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
@@ -92,12 +103,13 @@ func (db BoltDb) GetAll() Repos {
 		for k, v := c.First(); k != nil; k, v = c.Next() {
 			var repo Repo
 			json.Unmarshal(v, &repo)
-			list = append(list, &repo)
+			list = append(list, repo)
 		}
 
 		return nil
 	})
 
+	sort.Sort(ByName(list))
 	return list
 }
 
