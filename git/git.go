@@ -43,7 +43,7 @@ func ReadFile(path, file string) (string, error) {
 }
 
 func CreateRepo(path string) {
-	os.Mkdir(path, 0755)
+	os.Mkdir(path, 0775)
 	run(path, "init", "--bare")
 
 	sampleHook := filepath.Join(path, "hooks", "post-update.sample")
