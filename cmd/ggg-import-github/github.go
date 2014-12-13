@@ -15,7 +15,7 @@ import (
 var (
 	dbPath = flag.String("db-path", "", "Path to ggg database")
 	gitDir = flag.String("git-dir", "", "Path to ggg git directory")
-	token = flag.String("token", "", "A personal access token")
+	token  = flag.String("token", "", "A personal access token")
 )
 
 const USAGE = `Usage: ggg-import-github [options]
@@ -44,7 +44,7 @@ func main() {
 	defer db.Close()
 
 	opt := &github.RepositoryListOptions{
-	  Type: "owner",
+		Type: "owner",
 	}
 
 	for {
