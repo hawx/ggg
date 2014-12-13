@@ -44,7 +44,7 @@ func ReadFile(path, file string) (string, error) {
 
 func CreateRepo(path string) {
 	os.Mkdir(path, 0775)
-	run(path, "init", "--bare", "--shared", "group")
+	run(path, "init", "--bare", "--shared=group")
 
 	sampleHook := filepath.Join(path, "hooks", "post-update.sample")
 	hook := filepath.Join(path, "hooks", "post-update") // need to replace with hook that calls ggg!
