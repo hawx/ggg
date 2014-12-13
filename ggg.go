@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/web/assets"
-	"github.com/hawx/ggg/web/views"
 	"github.com/hawx/ggg/web/filters"
 	"github.com/hawx/ggg/web/handlers"
 
@@ -20,7 +19,6 @@ var (
 	settingsPath = flag.String("settings", "./settings.toml", "Path to 'settings.toml'")
 	port         = flag.String("port", "8080", "Port to run on")
 
-	audience     = config.String("audience", "localhost")
 	cookieSecret = config.String("secret", "change-me")
 	title        = config.String("title", "ggg")
 	gitDir       = config.String("gitDir", "./ggg-data/repos")
@@ -28,34 +26,6 @@ var (
 	user         = config.String("user", "someone@example.com")
 	url          = config.String("url", "http://localhost:8080")
 )
-
-type Ctx struct {
-	Title       string
-	Url         string
-	Repos       []repos.Repo
-}
-
-func List(db repos.Db) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repos := []repos.Repo{}
-		for _, repo := range db.GetAll() {
-			if !repo.IsPrivate {
-				repos = append(repos, repo)
-			}
-		}
-
-		w.Header().Add("Content-Type", "text/html")
-		views.List.Execute(w, Ctx{*title, *url, repos})
-	})
-}
-
-func Admin(db repos.Db) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "text/html")
-		views.Admin.Execute(w, Ctx{*title, *url, db.GetAll()})
-	})
-}
-
 
 func main() {
 	flag.Parse()
@@ -68,10 +38,12 @@ func main() {
 	defer db.Close()
 
 	store := persona.NewStore(*cookieSecret)
-	persona := persona.New(store, *audience, []string{*user})
+	persona := persona.New(store, *url, []string{*user})
 
 	r := mux.NewRouter()
-	r.Methods("GET").Path("/").Handler(persona.Switch(Admin(db), List(db)))
+
+	list := handlers.List(db, *title, *url)
+	r.Methods("GET").Path("/").Handler(persona.Switch(list.All, list.Public))
 
 	create := handlers.Create(db)
 	r.Methods("GET").Path("/create").Handler(persona.Protect(create.Get))
@@ -90,7 +62,7 @@ func main() {
 	r.Methods("GET").Path("/assets/styles.css").Handler(assets.Styles)
 	r.Methods("GET").Path("/assets/core.js").Handler(assets.Core)
 
-	repo := handlers.Repo(db, *url)
+	repo := handlers.Repo(db, *url, persona.Protect)
 	r.Methods("GET").PathPrefix("/{name:.+\\.git}/").Handler(repo.Git)
 	r.Methods("GET").PathPrefix("/{name}").Handler(repo.Html)
 
