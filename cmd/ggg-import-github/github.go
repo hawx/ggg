@@ -43,13 +43,24 @@ func main() {
 	db := repos.Open(*dbPath, *gitDir)
 	defer db.Close()
 
-	// list all repositories for the authenticated user
-	repos, _, _ := client.Repositories.List("", &github.RepositoryListOptions{
-		Type: "owner",
-	})
+	opt := &github.RepositoryListOptions{
+	  Type: "owner",
+	}
 
-	for _, repo := range repos {
-		copyRepo(db, repo)
+	for {
+		repos, resp, err := client.Repositories.List("", opt)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		for _, repo := range repos {
+			copyRepo(db, repo)
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+		opt.ListOptions.Page = resp.NextPage
 	}
 }
 
