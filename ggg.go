@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/hawx/persona"
+	"github.com/hawx/serve"
 	"github.com/stvp/go-toml-config"
 
 	"flag"
@@ -18,6 +19,7 @@ import (
 var (
 	settingsPath = flag.String("settings", "./settings.toml", "Path to 'settings.toml'")
 	port         = flag.String("port", "8080", "Port to run on")
+	socket       = flag.String("socket", "", "")
 
 	cookieSecret = config.String("secret", "change-me")
 	title        = config.String("title", "ggg")
@@ -68,6 +70,5 @@ func main() {
 
 	http.Handle("/", r)
 
-	log.Println("Running on :" + *port)
-	log.Fatal(http.ListenAndServe(":"+*port, filters.Log(http.DefaultServeMux)))
+	serve.Serve(*port, *socket, filters.Log(http.DefaultServeMux))
 }
