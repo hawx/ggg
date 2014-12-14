@@ -65,11 +65,11 @@ func (h repoHandler) Html(url string, protect persona.Filter) http.Handler {
 	})
 }
 
-func (h repoHandler) htmlPage(repo repos.Repo, url string) http.Handler {
+func (h repoHandler) htmlPage(repo *repos.Repo, url string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/html")
 		views.Repo.Execute(w, struct {
-			repos.Repo
+			*repos.Repo
 			Url string
 		}{repo, url})
 	})

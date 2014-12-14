@@ -26,11 +26,11 @@ const repo = `<!DOCTYPE html>
     <aside>
       <figure>
         <figcaption>
-          <h3>README.md</h3>
+          <h3>{{.ReadmeName}}</h3>
         </figcaption>
 
         <article>
-          {{.Readme}}
+          {{.ReadmeContents}}
         </article>
       </figure>
     </aside>

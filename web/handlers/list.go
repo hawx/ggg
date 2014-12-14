@@ -30,12 +30,12 @@ type listHandler struct {
 type Ctx struct {
 	Title string
 	Url   string
-	Repos []repos.Repo
+	Repos []*repos.Repo
 }
 
 func (h listHandler) Public() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repos := []repos.Repo{}
+		repos := []*repos.Repo{}
 		for _, repo := range h.db.GetAll() {
 			if !repo.IsPrivate {
 				repos = append(repos, repo)

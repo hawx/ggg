@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-type ByName []Repo
+type ByName []*Repo
 
 func (s ByName) Len() int {
 	return len(s)
@@ -36,13 +36,33 @@ type Repo struct {
 	Path        string
 	LastUpdate  time.Time
 	IsPrivate   bool
+	Readme      Readme
 }
 
-func (r Repo) CloneUrl() string {
+type Readme struct {
+	Name     string
+	Contents template.HTML
+}
+
+func (r *Repo) CloneUrl() string {
 	return r.Name + ".git"
 }
 
-func (r Repo) Readme() template.HTML {
+func (r *Repo) ReadmeContents() template.HTML {
+	r.getReadme()
+	return r.Readme.Contents
+}
+
+func (r *Repo) ReadmeName() string {
+	r.getReadme()
+	return r.Readme.Name
+}
+
+func (r *Repo) getReadme() {
+	if r.Readme.Contents != "" {
+		return
+	}
+
 	for _, file := range []string{"README.md", "Readme.md", "README.markdown"} {
 		text, err := git.ReadFile(r.Path, file)
 		if err != nil {
@@ -50,18 +70,23 @@ func (r Repo) Readme() template.HTML {
 			continue
 		}
 
-		return template.HTML(github_flavored_markdown.Markdown([]byte(text)))
+		r.Readme = Readme{
+			file,
+			template.HTML(github_flavored_markdown.Markdown([]byte(text))),
+		}
+
+		return
 	}
 
-	return "&hellip;"
+	r.Readme = Readme{"README", "&hellip;"}
 }
 
 type Db interface {
-	GetAll() []Repo
-	Get(name string) Repo
+	GetAll() []*Repo
+	Get(name string) *Repo
 	Create(name, web, description string, isPrivate bool)
-	Save(Repo)
-	Delete(Repo)
+	Save(*Repo)
+	Delete(*Repo)
 	Close()
 }
 
@@ -88,13 +113,13 @@ func Open(path, gitDir string) Db {
 
 func (db BoltDb) Create(name, web, description string, isPrivate bool) {
 	path := filepath.Join(db.gitDir, name) + ".git"
-	repo := Repo{name, web, description, path, time.Now(), isPrivate}
+	repo := &Repo{name, web, description, path, time.Now(), isPrivate, Readme{}}
 
 	db.Save(repo)
 }
 
-func (db BoltDb) GetAll() []Repo {
-	list := []Repo{}
+func (db BoltDb) GetAll() []*Repo {
+	list := []*Repo{}
 
 	db.me.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
@@ -103,7 +128,7 @@ func (db BoltDb) GetAll() []Repo {
 		for k, v := c.First(); k != nil; k, v = c.Next() {
 			var repo Repo
 			json.Unmarshal(v, &repo)
-			list = append(list, repo)
+			list = append(list, &repo)
 		}
 
 		return nil
@@ -113,7 +138,7 @@ func (db BoltDb) GetAll() []Repo {
 	return list
 }
 
-func (db BoltDb) Get(name string) Repo {
+func (db BoltDb) Get(name string) *Repo {
 	var repo Repo
 
 	db.me.View(func(tx *bolt.Tx) error {
@@ -125,10 +150,10 @@ func (db BoltDb) Get(name string) Repo {
 		return nil
 	})
 
-	return repo
+	return &repo
 }
 
-func (db BoltDb) Save(repo Repo) {
+func (db BoltDb) Save(repo *Repo) {
 	key := repo.Name
 	serialised, _ := json.Marshal(repo)
 
@@ -138,7 +163,7 @@ func (db BoltDb) Save(repo Repo) {
 	})
 }
 
-func (db BoltDb) Delete(repo Repo) {
+func (db BoltDb) Delete(repo *Repo) {
 	db.me.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(bucketName))
 		return b.Delete([]byte(repo.Name))
