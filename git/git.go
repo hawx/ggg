@@ -9,21 +9,32 @@ import (
 	"strings"
 )
 
-func GetBranch(path string) (string, error) {
+func Branches(path string) []string {
+	branches := []string{}
+	for _, branch := range strings.Split(run(path, "branch"), "\n") {
+		if len(branch) > 0 {
+			branches = append(branches, branch[2:])
+		}
+	}
+	return branches
+}
+
+func GetDefaultBranch(path string) string {
 	for _, branch := range strings.Split(run(path, "branch"), "\n") {
 		if len(branch) > 0 && branch[0] == 42 {
-			return run(path, "rev-parse", branch[2:]), nil
+			return branch[2:]
 		}
 	}
 
-	return "", errors.New("No active branch found")
+	return ""
 }
 
-func ReadFile(path, file string) (string, error) {
-	branchRef, err := GetBranch(path)
-	if err != nil {
-		return "", err
-	}
+func GetBranch(path, branch string) string {
+	return run(path, "rev-parse", branch)
+}
+
+func ReadFile(path, branch, file string) (string, error) {
+	branchRef := GetBranch(path, branch)
 
 	ref := ""
 	for _, row := range strings.Split(run(path, "ls-tree", branchRef), "\n") {

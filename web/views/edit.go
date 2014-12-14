@@ -27,6 +27,14 @@ const edit = `<!DOCTYPE html>
         <label for="description">Description</label>
         <input name="description" id="description" type="text" value="{{.Description}}" />
 
+        <label for="branch">Default Branch</label>
+        <select name="branch">
+          {{range .Branches}}
+          <option value="{{.}}" {{if eq . $.Branch}}selected="selected"{{end}}>{{.}}</option>
+          {{end}}
+        </select>
+        <br/>
+
         <label for="private">Private?</label>
         <input name="private" id="private" type="checkbox" value="private" {{if .IsPrivate}}checked="checked"{{end}} />
         <br/>

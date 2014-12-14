@@ -25,6 +25,15 @@ const repo = `<!DOCTYPE html>
 
     <aside>
       <figure>
+        {{if .IsEmpty}}
+        <figcaption>
+          <h3>Empty</h3>
+        </figcaption>
+
+        <article>
+          <p>Maybe try pushing...</p>
+        </article>
+        {{else}}
         <figcaption>
           <h3>{{.ReadmeName}}</h3>
         </figcaption>
@@ -32,6 +41,7 @@ const repo = `<!DOCTYPE html>
         <article>
           {{.ReadmeContents}}
         </article>
+        {{end}}
       </figure>
     </aside>
 

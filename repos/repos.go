@@ -34,6 +34,7 @@ type Repo struct {
 	Web         string
 	Description string
 	Path        string
+	Branch      string
 	LastUpdate  time.Time
 	IsPrivate   bool
 	Readme      Readme
@@ -46,6 +47,14 @@ type Readme struct {
 
 func (r *Repo) CloneUrl() string {
 	return r.Name + ".git"
+}
+
+func (r *Repo) Branches() []string {
+	return git.Branches(r.Path)
+}
+
+func (r *Repo) IsEmpty() bool {
+	return len(r.Branches()) == 0
 }
 
 func (r *Repo) ReadmeContents() template.HTML {
@@ -63,8 +72,12 @@ func (r *Repo) getReadme() {
 		return
 	}
 
+	if r.Branch == "" {
+		r.Branch = git.GetDefaultBranch(r.Path)
+	}
+
 	for _, file := range []string{"README.md", "Readme.md", "README.markdown"} {
-		text, err := git.ReadFile(r.Path, file)
+		text, err := git.ReadFile(r.Path, r.Branch, file)
 		if err != nil {
 			log.Println(r.Name, " Readme(): ", err)
 			continue
@@ -113,7 +126,16 @@ func Open(path, gitDir string) Db {
 
 func (db BoltDb) Create(name, web, description string, isPrivate bool) {
 	path := filepath.Join(db.gitDir, name) + ".git"
-	repo := &Repo{name, web, description, path, time.Now(), isPrivate, Readme{}}
+	repo := &Repo{
+		Name:        name,
+		Web:         web,
+		Description: description,
+		Path:        path,
+		Branch:      "",
+		LastUpdate:  time.Now(),
+		IsPrivate:   isPrivate,
+		Readme:      Readme{},
+	}
 
 	db.Save(repo)
 }
