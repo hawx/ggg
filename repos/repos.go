@@ -97,7 +97,7 @@ func (r *Repo) getReadme() {
 type Db interface {
 	GetAll() []*Repo
 	Get(name string) *Repo
-	Create(name, web, description string, isPrivate bool)
+	Create(name, web, description, branch string, isPrivate bool)
 	Save(*Repo)
 	Delete(*Repo)
 	Close()
@@ -124,14 +124,14 @@ func Open(path, gitDir string) Db {
 	return BoltDb{db, gitDir}
 }
 
-func (db BoltDb) Create(name, web, description string, isPrivate bool) {
+func (db BoltDb) Create(name, web, description, branch string, isPrivate bool) {
 	path := filepath.Join(db.gitDir, name) + ".git"
 	repo := &Repo{
 		Name:        name,
 		Web:         web,
 		Description: description,
 		Path:        path,
-		Branch:      "",
+		Branch:      branch,
 		LastUpdate:  time.Now(),
 		IsPrivate:   isPrivate,
 		Readme:      Readme{},

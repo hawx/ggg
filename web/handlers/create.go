@@ -39,6 +39,7 @@ func (h createHandler) Post() http.Handler {
 			r.FormValue("name"),
 			r.FormValue("web"),
 			r.FormValue("description"),
+			"",
 			r.FormValue("private") == "private")
 
 		created := h.db.Get(r.FormValue("name"))

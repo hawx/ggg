@@ -85,10 +85,16 @@ func copyRepo(db repos.Db, repo github.Repository) {
 		private = *repo.Private
 	}
 
+	branch := ""
+	if repo.DefaultBranch != nil {
+		branch = *repo.DefaultBranch
+	}
+
 	db.Create(
 		*repo.Name,
 		homepage,
 		description,
+		branch,
 		private)
 
 	created := db.Get(*repo.Name)
