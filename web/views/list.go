@@ -26,7 +26,6 @@ const list = `<!DOCTYPE html>
       </ul>
     </div>
 
-    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://login.persona.org/include.js"></script>
     <script src="/assets/core.js"></script>
   </body>

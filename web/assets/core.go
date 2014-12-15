@@ -1,26 +1,38 @@
 package assets
 
 const core = `
-function gotAssertion(assertion) {
-    // got an assertion, now send it up to the server for verification
-    if (assertion !== null) {
-        $.ajax({
-            type: 'POST',
-            url: '/sign-in',
-            data: { assertion: assertion },
-            success: function(res, status, xhr) {
-                window.location.reload();
-            },
-            error: function(xhr, status, res) {
-                alert("sign-in failure" + res);
+function post(data) {
+    return new Promise(function(resolve, reject) {
+        var req = new XMLHttpRequest();
+        req.open("POST", "/sign-in");
+        req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+        req.onload = function(e) {
+            if (req.status == 200) {
+                resolve(req.response);
+            } else {
+                reject(Error(req.statusText));
             }
-        });
-    }
-};
+        };
 
-jQuery(function($) {
-    $('#browserid').click(function() {
-        navigator.id.get(gotAssertion);
+        req.onerror = function(e) {
+            reject(Error("network error"));
+        }
+
+        req.send(data);
+    });
+}
+
+var button = document.getElementById("browserid");
+button.addEventListener("click", function() {
+    navigator.id.get(function(assertion) {
+        if (assertion !== null) {
+            post("assertion=" + assertion)
+                .then(function() {
+                    window.location.reload();
+                }, function(err) {
+                    alert("sign-in failed: " + err)
+                });
+        }
     });
 });
 `
