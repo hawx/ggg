@@ -76,10 +76,10 @@ func (r *Repo) getReadme() {
 		r.Branch = git.GetDefaultBranch(r.Path)
 	}
 
-	for _, file := range []string{"README.md", "Readme.md", "README.markdown"} {
+	for _, file := range []string{"README.md", "Readme.md", "README.markdown", "readme.markdown"} {
 		text, err := git.ReadFile(r.Path, r.Branch, file)
 		if err != nil {
-			log.Println(r.Name, " Readme(): ", err)
+			log.Println(r.Name, "Readme(): ", err)
 			continue
 		}
 
@@ -88,6 +88,17 @@ func (r *Repo) getReadme() {
 			template.HTML(github_flavored_markdown.Markdown([]byte(text))),
 		}
 
+		return
+	}
+
+	for _, file := range []string{"README"} {
+		text, err := git.ReadFile(r.Path, r.Branch, file)
+		if err != nil {
+			log.Println(r.Name, "Readme():", err)
+			continue
+		}
+
+		r.Readme = Readme{file, template.HTML("<pre class='full'>" + text + "</pre>")}
 		return
 	}
 

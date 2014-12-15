@@ -164,6 +164,11 @@ figure article {
     padding: 0.65rem 1.3rem;
 }
 
+figure article pre.full {
+    padding: 0;
+    background: transparent;
+}
+
 
 /* flex */
 .single {
