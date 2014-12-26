@@ -19,7 +19,7 @@ const admin = `<!DOCTYPE html>
 
     <div class="filter">
       <div class="container">
-        <input id="filter" type="search" placeholder="Filter..." value="" />
+        <input id="filter" type="search" placeholder="Filter..." tabindex="1" />
       </div>
     </div>
 
