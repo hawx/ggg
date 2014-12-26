@@ -8,6 +8,7 @@ html, body {
 
 body {
     font: 14px/1.3 Verdana, Geneva, sans-serif;
+    overflow-y: scroll;
 }
 
 .container {
@@ -127,6 +128,22 @@ header > .container > a + a {
 
 .clone code {
     background: #efefef;
+}
+
+.filter {
+    padding: 1em 0px;
+    background: #fefefe;
+    border-bottom: 1px solid #eee;
+}
+
+.filter input[type=search] {
+    display: block;
+    border: none;
+    width: 100%;
+    padding: 0 0.5rem;
+    font: 1em Verdana, Geneva, sans-serif;
+    margin: 0;
+    background: none repeat scroll 0% 0% transparent;
 }
 
 hr {

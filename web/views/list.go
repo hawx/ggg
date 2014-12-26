@@ -16,6 +16,12 @@ const list = `<!DOCTYPE html>
       </div>
     </header>
 
+    <div class="filter">
+      <div class="container">
+        <input id="filter" type="search" placeholder="Filter..." value="" />
+      </div>
+    </div>
+
     <div class="container">
       <ul class="repos">
         {{range .Repos}}

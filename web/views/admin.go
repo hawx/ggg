@@ -17,6 +17,12 @@ const admin = `<!DOCTYPE html>
       </div>
     </header>
 
+    <div class="filter">
+      <div class="container">
+        <input id="filter" type="search" placeholder="Filter..." value="" />
+      </div>
+    </div>
+
     <div class="container">
       <ul class="repos">
         {{range .Repos}}
@@ -31,5 +37,7 @@ const admin = `<!DOCTYPE html>
         {{end}}
       </ul>
     </div>
+
+    <script src="/assets/core.js"></script>
   </body>
 </html>`
