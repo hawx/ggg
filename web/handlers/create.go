@@ -4,22 +4,18 @@ import (
 	"github.com/hawx/ggg/git"
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/web/views"
+	"github.com/hawx/mux"
 
 	"net/http"
 )
 
-func Create(db repos.Db) CreateHandler {
+func Create(db repos.Db) http.Handler {
 	h := createHandler{db}
 
-	return CreateHandler{
-		Get:  h.Get(),
-		Post: h.Post(),
+	return mux.Method{
+		"GET":  h.Get(),
+		"POST": h.Post(),
 	}
-}
-
-type CreateHandler struct {
-	Get  http.Handler
-	Post http.Handler
 }
 
 type createHandler struct {

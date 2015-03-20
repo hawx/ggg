@@ -1,19 +1,23 @@
 package main
 
 import (
+	"net/http"
+	"strings"
+
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/web/assets"
 	"github.com/hawx/ggg/web/filters"
 	"github.com/hawx/ggg/web/handlers"
 
-	"github.com/gorilla/mux"
+	"github.com/hawx/mux"
 	"github.com/hawx/persona"
 	"github.com/hawx/serve"
 	"github.com/stvp/go-toml-config"
 
 	"flag"
 	"log"
-	"net/http"
+
+	"github.com/hawx/route"
 )
 
 var (
@@ -42,33 +46,56 @@ func main() {
 	store := persona.NewStore(*cookieSecret)
 	persona := persona.New(store, *url, []string{*user})
 
-	r := mux.NewRouter()
+	dashRouter := route.New()
+	dashRouter.Handle("/-/create", persona.Protect(handlers.Create(db)))
+	dashRouter.Handle("/-/sign-in", mux.Method{"POST": persona.SignIn})
+	dashRouter.Handle("/-/sign-out", mux.Method{"GET": persona.SignOut})
 
-	list := handlers.List(db, *title, *url)
-	r.Methods("GET").Path("/").Handler(persona.Switch(list.All, list.Public))
+	assetRouter := route.New()
+	assetRouter.Handle("/assets/styles.css", mux.Method{"GET": assets.Styles})
+	assetRouter.Handle("/assets/core.js", mux.Method{"GET": assets.Core})
 
-	create := handlers.Create(db)
-	r.Methods("GET").Path("/create").Handler(persona.Protect(create.Get))
-	r.Methods("POST").Path("/create").Handler(persona.Protect(create.Post))
+	var (
+		repo = handlers.Repo(db, *url, persona.Protect)
+		list = handlers.List(db, *title, *url)
+		edit = persona.Protect(handlers.Edit(db))
+		dele = persona.Protect(handlers.Delete(db))
+	)
 
-	edit := handlers.Edit(db)
-	r.Methods("GET").Path("/edit/{name}").Handler(persona.Protect(edit.Get))
-	r.Methods("POST").Path("/edit/{name}").Handler(persona.Protect(edit.Post))
+	route.Handle("/", mux.Method{"GET": persona.Switch(list.All, list.Public)})
+	route.Handle("/:name", repo.Html)
+	route.HandleFunc("/:name/*path", func(w http.ResponseWriter, r *http.Request) {
+		vars := route.Vars(r)
+		name := vars["name"]
+		path := vars["path"]
 
-	delete := handlers.Delete(db)
-	r.Methods("GET").Path("/delete/{name}").Handler(persona.Protect(delete))
+		if strings.HasSuffix(name, ".git") {
+			repo.Git.ServeHTTP(w, r)
+			return
+		}
 
-	r.Methods("POST").Path("/sign-in").Handler(persona.SignIn)
-	r.Methods("GET").Path("/sign-out").Handler(persona.SignOut)
+		handler, ok := map[string]http.Handler{
+			"edit":   edit,
+			"delete": dele,
+		}[path[1:]]
 
-	r.Methods("GET").Path("/assets/styles.css").Handler(assets.Styles)
-	r.Methods("GET").Path("/assets/core.js").Handler(assets.Core)
+		if ok {
+			handler.ServeHTTP(w, r)
+			return
+		}
 
-	repo := handlers.Repo(db, *url, persona.Protect)
-	r.Methods("GET").PathPrefix("/{name:.+\\.git}/").Handler(repo.Git)
-	r.Methods("GET").PathPrefix("/{name}").Handler(repo.Html)
+		handler, ok = map[string]http.Handler{
+			"-":      dashRouter,
+			"assets": assetRouter,
+		}[name]
 
-	http.Handle("/", r)
+		if ok {
+			handler.ServeHTTP(w, r)
+			return
+		}
 
-	serve.Serve(*port, *socket, filters.Log(http.DefaultServeMux))
+		http.NotFound(w, r)
+	})
+
+	serve.Serve(*port, *socket, filters.Log(route.Default))
 }

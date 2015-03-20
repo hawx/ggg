@@ -4,23 +4,19 @@ import (
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/web/views"
 
-	"github.com/gorilla/mux"
+	"github.com/hawx/mux"
+	"github.com/hawx/route"
 
 	"net/http"
 )
 
-func Edit(db repos.Db) EditHandler {
+func Edit(db repos.Db) http.Handler {
 	h := editHandler{db}
 
-	return EditHandler{
-		Get:  h.Get(),
-		Post: h.Post(),
+	return mux.Method{
+		"GET":  h.Get(),
+		"POST": h.Post(),
 	}
-}
-
-type EditHandler struct {
-	Get  http.Handler
-	Post http.Handler
 }
 
 type editHandler struct {
@@ -29,7 +25,7 @@ type editHandler struct {
 
 func (h editHandler) Get() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repoName := mux.Vars(r)["name"]
+		repoName := route.Vars(r)["name"]
 		repo := h.db.Get(repoName)
 
 		w.Header().Add("Content-Type", "text/html")
@@ -39,7 +35,7 @@ func (h editHandler) Get() http.Handler {
 
 func (h editHandler) Post() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repoName := mux.Vars(r)["name"]
+		repoName := route.Vars(r)["name"]
 		repo := h.db.Get(repoName)
 
 		repo.Web = r.FormValue("web")

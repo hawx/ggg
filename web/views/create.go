@@ -18,7 +18,7 @@ const create = `<!DOCTYPE html>
     </header>
 
     <div class="container">
-      <form method="POST" action="/create">
+      <form method="POST" action="/-/create">
         <label for="name">Name</label>
         <input name="name" id="name" type="text" />
 

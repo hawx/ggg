@@ -4,7 +4,7 @@ const core = `
 function post(data) {
     return new Promise(function(resolve, reject) {
         var req = new XMLHttpRequest();
-        req.open("POST", "/sign-in");
+        req.open("POST", "/-/sign-in");
         req.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
         req.onload = function(e) {
             if (req.status == 200) {

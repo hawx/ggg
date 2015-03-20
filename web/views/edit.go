@@ -18,7 +18,7 @@ const edit = `<!DOCTYPE html>
     </header>
 
     <div class="container">
-      <form method="POST" action="/edit/{{.Name}}">
+      <form method="POST" action="/{{.Name}}/edit">
         <label for="name">Name</label>
         <input name="name" id="name" type="text" value="{{.Name}}" disabled="disabled" />
 

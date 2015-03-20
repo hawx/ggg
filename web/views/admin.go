@@ -12,8 +12,8 @@ const admin = `<!DOCTYPE html>
     <header>
       <div class="container">
         <h1><a href="/">{{.Title}}</a></h1>
-        <a href="/create">create</a>
-        <a href="/sign-out">sign-out</a>
+        <a href="/-/create">create</a>
+        <a href="/-/sign-out">sign-out</a>
       </div>
     </header>
 
@@ -30,8 +30,8 @@ const admin = `<!DOCTYPE html>
           <h1><a href="/{{.Name}}">{{.Name}}</a></h1>
           <p>{{.Description}}</p>
           <div class="buttons">
-            <a href="/edit/{{.Name}}">edit</a>
-            <a href="/delete/{{.Name}}">delete</a>
+            <a href="/{{.Name}}/edit">edit</a>
+            <a href="/{{.Name}}/delete">delete</a>
           </div>
         </li>
         {{end}}

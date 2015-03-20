@@ -4,8 +4,8 @@ import (
 	"github.com/hawx/ggg/repos"
 	"github.com/hawx/ggg/web/views"
 
-	"github.com/gorilla/mux"
 	"github.com/hawx/persona"
+	"github.com/hawx/route"
 
 	"net/http"
 )
@@ -30,7 +30,7 @@ type repoHandler struct {
 
 func (h repoHandler) Git(protect persona.Filter) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := mux.Vars(r)["name"]
+		name := route.Vars(r)["name"]
 		repoName := name[:len(name)-4]
 		repo := h.db.Get(repoName)
 
@@ -46,7 +46,7 @@ func (h repoHandler) Git(protect persona.Filter) http.Handler {
 
 func (h repoHandler) Html(url string, protect persona.Filter) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		name := mux.Vars(r)["name"]
+		name := route.Vars(r)["name"]
 		repo := h.db.Get(name)
 
 		if repo.Name == "" {

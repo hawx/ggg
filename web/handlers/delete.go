@@ -3,20 +3,23 @@ package handlers
 import (
 	"github.com/hawx/ggg/repos"
 
-	"github.com/gorilla/mux"
+	"github.com/hawx/mux"
+	"github.com/hawx/route"
 
 	"net/http"
 	"os"
 )
 
 func Delete(db repos.Db) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		repoName := mux.Vars(r)["name"]
+	return mux.Method{
+		"GET": http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			repoName := route.Vars(r)["name"]
 
-		repo := db.Get(repoName)
-		db.Delete(repo)
-		os.RemoveAll(repo.Path)
+			repo := db.Get(repoName)
+			db.Delete(repo)
+			os.RemoveAll(repo.Path)
 
-		http.Redirect(w, r, "/", 302)
-	})
+			http.Redirect(w, r, "/", 302)
+		}),
+	}
 }
