@@ -1,6 +1,8 @@
 package main
 
 import (
+	"flag"
+	"log"
 	"net/http"
 	"strings"
 
@@ -8,16 +10,11 @@ import (
 	"github.com/hawx/ggg/web/assets"
 	"github.com/hawx/ggg/web/filters"
 	"github.com/hawx/ggg/web/handlers"
-
 	"github.com/hawx/mux"
 	"github.com/hawx/persona"
+	"github.com/hawx/route"
 	"github.com/hawx/serve"
 	"github.com/stvp/go-toml-config"
-
-	"flag"
-	"log"
-
-	"github.com/hawx/route"
 )
 
 var (
@@ -46,56 +43,30 @@ func main() {
 	store := persona.NewStore(*cookieSecret)
 	persona := persona.New(store, *url, []string{*user})
 
-	dashRouter := route.New()
-	dashRouter.Handle("/-/create", persona.Protect(handlers.Create(db)))
-	dashRouter.Handle("/-/sign-in", mux.Method{"POST": persona.SignIn})
-	dashRouter.Handle("/-/sign-out", mux.Method{"GET": persona.SignOut})
-
-	assetRouter := route.New()
-	assetRouter.Handle("/assets/styles.css", mux.Method{"GET": assets.Styles})
-	assetRouter.Handle("/assets/core.js", mux.Method{"GET": assets.Core})
-
-	var (
-		repo = handlers.Repo(db, *url, persona.Protect)
-		list = handlers.List(db, *title, *url)
-		edit = persona.Protect(handlers.Edit(db))
-		dele = persona.Protect(handlers.Delete(db))
-	)
+	list := handlers.List(db, *title, *url)
+	repo := handlers.Repo(db, *url, persona.Protect)
 
 	route.Handle("/", mux.Method{"GET": persona.Switch(list.All, list.Public)})
-	route.Handle("/:name", repo.Html)
+
 	route.HandleFunc("/:name/*path", func(w http.ResponseWriter, r *http.Request) {
 		vars := route.Vars(r)
-		name := vars["name"]
-		path := vars["path"]
 
-		if strings.HasSuffix(name, ".git") {
+		if strings.HasSuffix(vars["name"], ".git") {
 			repo.Git.ServeHTTP(w, r)
 			return
 		}
 
-		handler, ok := map[string]http.Handler{
-			"edit":   edit,
-			"delete": dele,
-		}[path[1:]]
-
-		if ok {
-			handler.ServeHTTP(w, r)
-			return
-		}
-
-		handler, ok = map[string]http.Handler{
-			"-":      dashRouter,
-			"assets": assetRouter,
-		}[name]
-
-		if ok {
-			handler.ServeHTTP(w, r)
-			return
-		}
-
-		http.NotFound(w, r)
+		repo.Html.ServeHTTP(w, r)
 	})
+	route.Handle("/:name/edit", persona.Protect(handlers.Edit(db)))
+	route.Handle("/:name/delete", persona.Protect(handlers.Delete(db)))
+
+	route.Handle("/-/create", persona.Protect(handlers.Create(db)))
+	route.Handle("/-/sign-in", mux.Method{"POST": persona.SignIn})
+	route.Handle("/-/sign-out", mux.Method{"GET": persona.SignOut})
+
+	route.Handle("/assets/styles.css", mux.Method{"GET": assets.Styles})
+	route.Handle("/assets/core.js", mux.Method{"GET": assets.Core})
 
 	serve.Serve(*port, *socket, filters.Log(route.Default))
 }
