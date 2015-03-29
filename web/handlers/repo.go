@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func Repo(db repos.Db, url string, protect persona.Filter) RepoHandler {
+func Repo(db repos.Db, url string, protect persona.Protect) RepoHandler {
 	h := repoHandler{db}
 
 	return RepoHandler{
@@ -28,7 +28,7 @@ type repoHandler struct {
 	db repos.Db
 }
 
-func (h repoHandler) Git(protect persona.Filter) http.Handler {
+func (h repoHandler) Git(protect persona.Protect) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := route.Vars(r)["name"]
 		repoName := name[:len(name)-4]
@@ -44,7 +44,7 @@ func (h repoHandler) Git(protect persona.Filter) http.Handler {
 	})
 }
 
-func (h repoHandler) Html(url string, protect persona.Filter) http.Handler {
+func (h repoHandler) Html(url string, protect persona.Protect) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := route.Vars(r)["name"]
 		repo := h.db.Get(name)
