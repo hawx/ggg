@@ -10,11 +10,11 @@ import (
 	"github.com/hawx/ggg/web/assets"
 	"github.com/hawx/ggg/web/filters"
 	"github.com/hawx/ggg/web/handlers"
-	"github.com/hawx/mux"
 	"github.com/hawx/persona"
-	"github.com/hawx/route"
 	"github.com/hawx/serve"
 	"github.com/stvp/go-toml-config"
+	"hawx.me/code/mux"
+	"hawx.me/code/route"
 )
 
 var (

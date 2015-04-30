@@ -114,6 +114,11 @@ header > .container > a + a {
     z-index: 999;
 }
 
+.single .repo .buttons {
+    left: 0;
+    position: relative;
+}
+
 .repo.private a {
     color: hsl(20, 51%, 44%);
 }
