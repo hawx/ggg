@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/hawx/ggg/git"
-	"github.com/hawx/ggg/repos"
+	"hawx.me/code/ggg/git"
+	"hawx.me/code/ggg/repos"
 
 	"code.google.com/p/goauth2/oauth"
 	"github.com/google/go-github/github"

@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"github.com/hawx/ggg/git"
-	"github.com/hawx/ggg/repos"
-	"github.com/hawx/ggg/web/views"
+	"hawx.me/code/ggg/git"
+	"hawx.me/code/ggg/repos"
+	"hawx.me/code/ggg/web/views"
 	"hawx.me/code/mux"
 
 	"net/http"

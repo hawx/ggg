@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"github.com/hawx/ggg/repos"
-	"github.com/hawx/ggg/web/views"
+	"hawx.me/code/ggg/repos"
+	"hawx.me/code/ggg/web/views"
 
 	"github.com/hawx/persona"
 	"hawx.me/code/route"

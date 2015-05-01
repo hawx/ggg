@@ -1,7 +1,7 @@
 package repos
 
 import (
-	"github.com/hawx/ggg/git"
+	"hawx.me/code/ggg/git"
 
 	"github.com/boltdb/bolt"
 	"github.com/shurcooL/go/github_flavored_markdown"

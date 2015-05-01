@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/hawx/ggg/repos"
+	"hawx.me/code/ggg/repos"
 
 	"hawx.me/code/mux"
 	"hawx.me/code/route"
