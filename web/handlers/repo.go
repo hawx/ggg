@@ -4,7 +4,7 @@ import (
 	"hawx.me/code/ggg/repos"
 	"hawx.me/code/ggg/web/views"
 
-	"github.com/hawx/persona"
+	"hawx.me/code/persona"
 	"hawx.me/code/route"
 
 	"net/http"

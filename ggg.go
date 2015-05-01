@@ -6,15 +6,15 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/hawx/persona"
-	"github.com/hawx/serve"
 	"github.com/stvp/go-toml-config"
 	"hawx.me/code/ggg/repos"
 	"hawx.me/code/ggg/web/assets"
 	"hawx.me/code/ggg/web/filters"
 	"hawx.me/code/ggg/web/handlers"
 	"hawx.me/code/mux"
+	"hawx.me/code/persona"
 	"hawx.me/code/route"
+	"hawx.me/code/serve"
 )
 
 var (
