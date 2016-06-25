@@ -4,18 +4,19 @@ import (
 	"hawx.me/code/ggg/repos"
 	"hawx.me/code/ggg/web/views"
 
-	"hawx.me/code/persona"
 	"hawx.me/code/route"
 
 	"net/http"
 )
 
-func Repo(db repos.Db, url string, protect persona.Protect) RepoHandler {
+type Middleware func(http.Handler) http.Handler
+
+func Repo(db repos.Db, url string, shield Middleware) RepoHandler {
 	h := repoHandler{db}
 
 	return RepoHandler{
-		Html: h.Html(url, protect),
-		Git:  h.Git(protect),
+		Html: h.Html(url, shield),
+		Git:  h.Git(shield),
 	}
 }
 
@@ -28,7 +29,7 @@ type repoHandler struct {
 	db repos.Db
 }
 
-func (h repoHandler) Git(protect persona.Protect) http.Handler {
+func (h repoHandler) Git(shield Middleware) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := route.Vars(r)["name"]
 		repoName := name[:len(name)-4]
@@ -44,7 +45,7 @@ func (h repoHandler) Git(protect persona.Protect) http.Handler {
 	})
 }
 
-func (h repoHandler) Html(url string, protect persona.Protect) http.Handler {
+func (h repoHandler) Html(url string, shield Middleware) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := route.Vars(r)["name"]
 		repo := h.db.Get(name)
@@ -57,7 +58,7 @@ func (h repoHandler) Html(url string, protect persona.Protect) http.Handler {
 		innerHandler := h.htmlPage(repo, url)
 
 		if repo.IsPrivate {
-			protect(innerHandler).ServeHTTP(w, r)
+			shield(innerHandler).ServeHTTP(w, r)
 			return
 		}
 

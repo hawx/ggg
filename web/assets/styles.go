@@ -7,7 +7,7 @@ html, body {
 }
 
 body {
-    font: 14px/1.3 Verdana, Geneva, sans-serif;
+    font: 1em/1.3 Verdana, Geneva, sans-serif;
     overflow-y: scroll;
 }
 

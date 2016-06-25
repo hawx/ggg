@@ -6,47 +6,59 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/stvp/go-toml-config"
+	"github.com/BurntSushi/toml"
 	"hawx.me/code/ggg/repos"
 	"hawx.me/code/ggg/web/assets"
 	"hawx.me/code/ggg/web/filters"
 	"hawx.me/code/ggg/web/handlers"
 	"hawx.me/code/mux"
-	"hawx.me/code/persona"
 	"hawx.me/code/route"
 	"hawx.me/code/serve"
+	"hawx.me/code/uberich"
 )
 
-var (
-	settingsPath = flag.String("settings", "./settings.toml", "Path to 'settings.toml'")
-	port         = flag.String("port", "8080", "Port to run on")
-	socket       = flag.String("socket", "", "")
+type Conf struct {
+	Title  string
+	URL    string
+	Secret string
+	GitDir string
+	DbPath string
 
-	cookieSecret = config.String("secret", "change-me")
-	title        = config.String("title", "ggg")
-	gitDir       = config.String("gitDir", "./ggg-data/repos")
-	dbPath       = config.String("dbPath", "./ggg-data/db")
-	user         = config.String("user", "someone@example.com")
-	url          = config.String("url", "http://localhost:8080")
-)
+	Uberich struct {
+		AppName    string
+		AppURL     string
+		UberichURL string
+		Secret     string
+	}
+}
 
 func main() {
+	var (
+		settingsPath = flag.String("settings", "./settings.toml", "Path to 'settings.toml'")
+		port         = flag.String("port", "8080", "Port to run on")
+		socket       = flag.String("socket", "", "")
+	)
 	flag.Parse()
 
-	if err := config.Parse(*settingsPath); err != nil {
+	var conf *Conf
+	if _, err := toml.DecodeFile(*settingsPath, &conf); err != nil {
 		log.Fatal("toml: ", err)
 	}
 
-	db := repos.Open(*dbPath, *gitDir)
+	db := repos.Open(conf.DbPath, conf.GitDir)
 	defer db.Close()
 
-	store := persona.NewStore(*cookieSecret)
-	persona := persona.New(store, *url, []string{*user})
+	store := uberich.NewStore(conf.Secret)
+	uberich := uberich.NewClient(conf.Uberich.AppName, conf.Uberich.AppURL, conf.Uberich.UberichURL, conf.Uberich.Secret, store)
 
-	list := handlers.List(db, *title, *url)
-	repo := handlers.Repo(db, *url, persona.Protect)
+	shield := func(h http.Handler) http.Handler {
+		return uberich.Protect(h, http.NotFoundHandler())
+	}
 
-	route.Handle("/", mux.Method{"GET": persona.Switch(list.All, list.Public)})
+	list := handlers.List(db, conf.Title, conf.URL)
+	repo := handlers.Repo(db, conf.URL, shield)
+
+	route.Handle("/", mux.Method{"GET": uberich.Protect(list.All, list.Public)})
 
 	route.HandleFunc("/:name/*path", func(w http.ResponseWriter, r *http.Request) {
 		vars := route.Vars(r)
@@ -58,12 +70,12 @@ func main() {
 
 		repo.Html.ServeHTTP(w, r)
 	})
-	route.Handle("/:name/edit", persona.Protect(handlers.Edit(db)))
-	route.Handle("/:name/delete", persona.Protect(handlers.Delete(db)))
+	route.Handle("/:name/edit", shield(handlers.Edit(db)))
+	route.Handle("/:name/delete", shield(handlers.Delete(db)))
 
-	route.Handle("/-/create", persona.Protect(handlers.Create(db)))
-	route.Handle("/-/sign-in", mux.Method{"POST": persona.SignIn})
-	route.Handle("/-/sign-out", mux.Method{"GET": persona.SignOut})
+	route.Handle("/-/create", shield(handlers.Create(db)))
+	route.Handle("/-/sign-in", uberich.SignIn("/"))
+	route.Handle("/-/sign-out", uberich.SignOut("/"))
 
 	route.Handle("/assets/styles.css", mux.Method{"GET": assets.Styles})
 	route.Handle("/assets/core.js", mux.Method{"GET": assets.Core})

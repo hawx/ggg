@@ -4,7 +4,7 @@ import (
 	"hawx.me/code/ggg/git"
 
 	"github.com/boltdb/bolt"
-	"github.com/shurcooL/github_flavored_markdown"
+	"github.com/shurcooL/go/github_flavored_markdown"
 
 	"encoding/json"
 	"html/template"

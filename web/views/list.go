@@ -12,7 +12,7 @@ const list = `<!DOCTYPE html>
     <header>
       <div class="container">
         <h1><a href="/">{{.Title}}</a></h1>
-        <a id="browserid" href="#" title="Sign-in with Persona">sign-in</a>
+        <a href="/sign-in" title="Sign-in with Persona">sign-in</a>
       </div>
     </header>
 
@@ -33,7 +33,6 @@ const list = `<!DOCTYPE html>
       </ul>
     </div>
 
-    <script src="https://login.persona.org/include.js"></script>
     <script src="/assets/core.js"></script>
   </body>
 </html>`
