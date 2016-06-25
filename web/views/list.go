@@ -12,7 +12,7 @@ const list = `<!DOCTYPE html>
     <header>
       <div class="container">
         <h1><a href="/">{{.Title}}</a></h1>
-        <a href="/sign-in" title="Sign-in with Persona">sign-in</a>
+        <a href="/-/sign-in" title="Sign-in with Persona">sign-in</a>
       </div>
     </header>
 
