@@ -28,9 +28,10 @@ type listHandler struct {
 }
 
 type Ctx struct {
-	Title string
-	Url   string
-	Repos []*repos.Repo
+	Title    string
+	Url      string
+	Repos    []*repos.Repo
+	LoggedIn bool
 }
 
 func (h listHandler) Public() http.Handler {
@@ -43,13 +44,13 @@ func (h listHandler) Public() http.Handler {
 		}
 
 		w.Header().Add("Content-Type", "text/html")
-		views.List.Execute(w, Ctx{h.title, h.url, repos})
+		views.List.Execute(w, Ctx{h.title, h.url, repos, false})
 	})
 }
 
 func (h listHandler) All() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/html")
-		views.Admin.Execute(w, Ctx{h.title, h.url, h.db.GetAll()})
+		views.List.Execute(w, Ctx{h.title, h.url, h.db.GetAll(), true})
 	})
 }

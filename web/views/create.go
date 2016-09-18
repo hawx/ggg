@@ -10,11 +10,9 @@ const create = `<!DOCTYPE html>
   </head>
   <body>
     <header>
-      <div class="container">
-        <h1>create</h1>
-        <a href="/">home</a>
-        <a href="/sign-out">sign-out</a>
-      </div>
+      <h1><a href="/">{{.Title}}</a></h1>
+      <a href="/-/create">create</a>
+      <a href="/sign-out">sign-out</a>
     </header>
 
     <div class="container">
@@ -26,7 +24,7 @@ const create = `<!DOCTYPE html>
         <input name="web" id="web" type="text" />
 
         <label for="description">Description</label>
-        <input name="description" id="description" type="text" />
+        <textarea name="description" id="description"></textarea>
 
         <label for="private">Private?</label>
         <input name="private" id="private" type="checkbox" value="private" />

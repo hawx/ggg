@@ -10,8 +10,8 @@ import (
 	"net/http"
 )
 
-func Edit(db repos.Db) http.Handler {
-	h := editHandler{db}
+func Edit(db repos.Db, title string) http.Handler {
+	h := editHandler{db, title}
 
 	return mux.Method{
 		"GET":  h.Get(),
@@ -20,7 +20,8 @@ func Edit(db repos.Db) http.Handler {
 }
 
 type editHandler struct {
-	db repos.Db
+	db    repos.Db
+	title string
 }
 
 func (h editHandler) Get() http.Handler {
@@ -29,7 +30,11 @@ func (h editHandler) Get() http.Handler {
 		repo := h.db.Get(repoName)
 
 		w.Header().Add("Content-Type", "text/html")
-		views.Edit.Execute(w, repo)
+		views.Edit.Execute(w, struct {
+			Title string
+			*repos.Repo
+			LoggedIn bool
+		}{h.title, repo, true})
 	})
 }
 

@@ -10,18 +10,10 @@ const admin = `<!DOCTYPE html>
   </head>
   <body>
     <header>
-      <div class="container">
-        <h1><a href="/">{{.Title}}</a></h1>
-        <a href="/-/create">create</a>
-        <a href="/-/sign-out">sign-out</a>
-      </div>
+      <h1><a href="/">{{.Title}}</a></h1>
+      <a href="/-/create">create</a>
+      <a href="/-/sign-out">sign-out</a>
     </header>
-
-    <div class="filter">
-      <div class="container">
-        <input id="filter" type="search" placeholder="Filter..." tabindex="1" />
-      </div>
-    </div>
 
     <div class="container">
       <ul class="repos">
@@ -37,7 +29,5 @@ const admin = `<!DOCTYPE html>
         {{end}}
       </ul>
     </div>
-
-    <script src="/assets/core.js"></script>
   </body>
 </html>`

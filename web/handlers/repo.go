@@ -9,14 +9,14 @@ import (
 	"net/http"
 )
 
-type Middleware func(http.Handler) http.Handler
+type Protect func(handler, errHandler http.Handler) http.Handler
 
-func Repo(db repos.Db, url string, shield Middleware) RepoHandler {
+func Repo(db repos.Db, title, url string, protect Protect) RepoHandler {
 	h := repoHandler{db}
 
 	return RepoHandler{
-		Html: h.Html(url, shield),
-		Git:  h.Git(shield),
+		Html: h.Html(title, url, protect),
+		Git:  h.Git(),
 	}
 }
 
@@ -29,13 +29,13 @@ type repoHandler struct {
 	db repos.Db
 }
 
-func (h repoHandler) Git(shield Middleware) http.Handler {
+func (h repoHandler) Git() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := route.Vars(r)["name"]
 		repoName := name[:len(name)-4]
 		repo := h.db.Get(repoName)
 
-		if repo.IsPrivate {
+		if repo.Name == "" || repo.IsPrivate {
 			http.NotFound(w, r)
 			return
 		}
@@ -45,7 +45,7 @@ func (h repoHandler) Git(shield Middleware) http.Handler {
 	})
 }
 
-func (h repoHandler) Html(url string, shield Middleware) http.Handler {
+func (h repoHandler) Html(title, url string, protect Protect) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		name := route.Vars(r)["name"]
 		repo := h.db.Get(name)
@@ -55,23 +55,27 @@ func (h repoHandler) Html(url string, shield Middleware) http.Handler {
 			return
 		}
 
-		innerHandler := h.htmlPage(repo, url)
+		innerHandler := h.htmlPage(title, repo, url)
 
 		if repo.IsPrivate {
-			shield(innerHandler).ServeHTTP(w, r)
+			protect(innerHandler(true), http.NotFoundHandler()).ServeHTTP(w, r)
 			return
 		}
 
-		innerHandler.ServeHTTP(w, r)
+		protect(innerHandler(true), innerHandler(false)).ServeHTTP(w, r)
 	})
 }
 
-func (h repoHandler) htmlPage(repo *repos.Repo, url string) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Add("Content-Type", "text/html")
-		views.Repo.Execute(w, struct {
-			*repos.Repo
-			Url string
-		}{repo, url})
-	})
+func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(bool) http.Handler {
+	return func(loggedIn bool) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Content-Type", "text/html")
+			views.Repo.Execute(w, struct {
+				Title string
+				*repos.Repo
+				Url      string
+				LoggedIn bool
+			}{title, repo, url, loggedIn})
+		})
+	}
 }

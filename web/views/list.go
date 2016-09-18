@@ -10,29 +10,30 @@ const list = `<!DOCTYPE html>
   </head>
   <body>
     <header>
-      <div class="container">
-        <h1><a href="/">{{.Title}}</a></h1>
-        <a href="/-/sign-in" title="Sign-in with Persona">sign-in</a>
-      </div>
+      <h1><a href="/">{{.Title}}</a></h1>
+      {{ if .LoggedIn }}
+      <a href="/-/create">create</a>
+      <a href="/-/sign-out">sign-out</a>
+      {{ else }}
+      <a href="/-/sign-in" title="Sign-in">sign-in</a>
+      {{ end }}
     </header>
-
-    <div class="filter">
-      <div class="container">
-        <input id="filter" type="search" placeholder="Filter..." tabindex="1" />
-      </div>
-    </div>
 
     <div class="container">
       <ul class="repos">
-        {{range .Repos}}
+        {{ range .Repos }}
         <li class="repo">
           <h1><a href="/{{.Name}}">{{.Name}}</a></h1>
           <p>{{.Description}}</p>
+          {{ if $.LoggedIn }}
+          <div class="buttons">
+            <a href="/{{.Name}}/edit">edit</a>
+            <a href="/{{.Name}}/delete">delete</a>
+          </div>
+          {{ end }}
         </li>
-        {{end}}
+        {{ end }}
       </ul>
     </div>
-
-    <script src="/assets/core.js"></script>
   </body>
 </html>`

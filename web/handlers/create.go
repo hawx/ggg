@@ -9,8 +9,8 @@ import (
 	"net/http"
 )
 
-func Create(db repos.Db) http.Handler {
-	h := createHandler{db}
+func Create(db repos.Db, title string) http.Handler {
+	h := createHandler{db, title}
 
 	return mux.Method{
 		"GET":  h.Get(),
@@ -19,13 +19,17 @@ func Create(db repos.Db) http.Handler {
 }
 
 type createHandler struct {
-	db repos.Db
+	db    repos.Db
+	title string
 }
 
 func (h createHandler) Get() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/html")
-		views.Create.Execute(w, nil)
+		views.Create.Execute(w, struct {
+			Title    string
+			LoggedIn bool
+		}{h.title, true})
 	})
 }
 

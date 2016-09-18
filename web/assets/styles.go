@@ -7,13 +7,18 @@ html, body {
 }
 
 body {
-    font: 1em/1.3 Verdana, Geneva, sans-serif;
+    font: 100%/1.3 Verdana, sans-serif;
     overflow-y: scroll;
 }
 
 .container {
-    max-width: 40em;
-    margin: 0 auto;
+    max-width: 40rem;
+    margin: 1rem;
+}
+
+aside {
+    max-width: 40rem;
+    margin: 1rem 1.5rem;
 }
 
 .container:before, .container:after {
@@ -31,19 +36,12 @@ a:hover {
 }
 
 header {
-    margin: 0;
-    background: #eee;
-    font-size: 1em;
+    margin: 0 1rem;
+    font-size: 1rem;
     border-bottom: 1px solid #ddd;
 }
 
-header > .container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-header h1, header > .container > a {
+header h1, header > a {
     margin: 0;
     padding: 1.3rem;
     height: 1.3rem;
@@ -52,7 +50,7 @@ header h1, header > .container > a {
 }
 
 header h1 {
-    font-size: 1.5em;
+    font-size: 1.5rem;
     padding-left: 0;
     margin-left: .5rem;
     font-weight: bold;
@@ -64,27 +62,15 @@ header h1 a {
     text-decoration: none;
 }
 
-header > .container > a {
-    font-size: 1.1em;
-    text-decoration: none;
-    margin-left: auto;
-    color: #333;
-}
-
-header > .container > a + a {
-    margin-left: 0;
-}
-
 .repos {
     width: auto;
     list-style: none;
     padding: 0;
-    margin: 2.6rem 0;
+    margin: 0;
 }
 
 .repos .repo {
-    border-bottom: 1px solid #ddd;
-    padding: 0 .5rem;
+    border-bottom: 1px dotted #ddd;
     width: auto;
 }
 
@@ -94,12 +80,13 @@ header > .container > a + a {
 
 .repo {
     margin: 1.3rem 0;
+    padding: 0 .5rem;
     width: 100%;
     position: relative;
 }
 
 .repo h1 {
-    font-size: 1.2em;
+    font-size: 1.2rem;
 }
 
 .repo h1 a {
@@ -107,16 +94,15 @@ header > .container > a + a {
 }
 
 .repo .buttons {
-    display: inline;
-    position: absolute;
-    left: -100px;
-    top: 0;
-    z-index: 999;
+    float: right;
+    position: relative;
+    top: -2.3rem;
+    opacity: 0;
+    background: white;
 }
 
-.single .repo .buttons {
-    left: 0;
-    position: relative;
+.repo:hover .buttons {
+    opacity: 1;
 }
 
 .repo.private a {
@@ -125,18 +111,12 @@ header > .container > a + a {
 
 .clone {
     margin: 1.3rem 0;
-}
-
-.clone span {
-    font-style: italic;
-}
-
-.clone code {
     background: #efefef;
+    padding: 1rem;
 }
 
 .filter {
-    padding: 1em 0px;
+    padding: 1rem 0px;
     background: #fefefe;
     border-bottom: 1px solid #eee;
 }
@@ -146,7 +126,7 @@ header > .container > a + a {
     border: none;
     width: 100%;
     padding: 0 0.5rem;
-    font: 1em Verdana, Geneva, sans-serif;
+    font: 1rem Verdana, Geneva, sans-serif;
     margin: 0;
     background: none repeat scroll 0% 0% transparent;
 }
@@ -160,13 +140,10 @@ hr {
     border-bottom: 1px solid #ccc;
 }
 
-.single > div {
-    margin: 2.6rem;
-}
-
 figure {
-    margin: 2.6rem;
     border: 1px solid #bbb;
+    margin: 0;
+    padding: 0;
 }
 
 figure figcaption {
@@ -191,22 +168,6 @@ figure article pre.full {
     background: transparent;
 }
 
-
-/* flex */
-.single {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-.single > div {
-    flex: 1;
-}
-
-.single > aside {
-    flex: 2;
-}
-
 form {
     margin: 1.3rem 0.5rem;
 }
@@ -215,8 +176,17 @@ input[type=text] {
     display: block;
     border: none;
     border-bottom: 1px dotted #aaa;
-    margin: 0.3em 0 1.3em;
+    margin: 0.3rem 0 1.3rem;
     width: 100%;
+}
+
+textarea {
+    display: block;
+    border: 1px dotted #aaa;
+    margin: 0.3rem 0 1.3rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 100%;
 }
 
 input[type=submit] {
@@ -226,31 +196,7 @@ input[type=submit] {
 label {
     color: #aaa;
     font-style: italic;
-    margin: 0.3em 0;
-}
-
-@media screen and (max-width: 60rem) {
-    body.single {
-        flex-direction: column;
-    }
-
-    .single > div {
-        margin-bottom: 0;
-    }
-
-    aside {
-        margin: 0;
-    }
-}
-
-@media screen and (max-width: 40rem) {
-    .single  > div {
-        margin: 1.3rem 1.3rem 0 1.3rem;
-    }
-
-    aside figure {
-        margin: 1.3rem;
-    }
+    margin: 0.3rem 0;
 }
 
 figure {
@@ -259,7 +205,7 @@ figure {
 }
 
 article {
-    font: 13px/1.3em Menlo, monospace;
+    font: 13px/1.3 Menlo, monospace;
 }
 
 article h1:first-child {
@@ -293,19 +239,20 @@ article p {
 
 article code {
     font-family: Menlo, monospace;
-    background: #eee;
+    color: rgb(90, 10, 20);
 }
 
 article pre > code {
     padding: 0;
     background: none;
+    color: rgb(90, 10, 20);
 }
 
 article pre {
-    background: #eee;
     padding: .7em 1.3em;
     font-family: Menlo, monospace;
     white-space: pre-wrap;
+    color: rgb(90, 10, 20);
 }
 
 article blockquote {

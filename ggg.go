@@ -56,7 +56,7 @@ func main() {
 	}
 
 	list := handlers.List(db, conf.Title, conf.URL)
-	repo := handlers.Repo(db, conf.URL, shield)
+	repo := handlers.Repo(db, conf.Title, conf.URL, uberich.Protect)
 
 	route.Handle("/", mux.Method{"GET": uberich.Protect(list.All, list.Public)})
 
@@ -70,15 +70,14 @@ func main() {
 
 		repo.Html.ServeHTTP(w, r)
 	})
-	route.Handle("/:name/edit", shield(handlers.Edit(db)))
+	route.Handle("/:name/edit", shield(handlers.Edit(db, conf.Title)))
 	route.Handle("/:name/delete", shield(handlers.Delete(db)))
 
-	route.Handle("/-/create", shield(handlers.Create(db)))
+	route.Handle("/-/create", shield(handlers.Create(db, conf.Title)))
 	route.Handle("/-/sign-in", uberich.SignIn("/"))
 	route.Handle("/-/sign-out", uberich.SignOut("/"))
 
 	route.Handle("/assets/styles.css", mux.Method{"GET": assets.Styles})
-	route.Handle("/assets/core.js", mux.Method{"GET": assets.Core})
 
 	serve.Serve(*port, *socket, filters.Log(route.Default))
 }

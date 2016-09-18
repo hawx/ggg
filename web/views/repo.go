@@ -8,19 +8,30 @@ const repo = `<!DOCTYPE html>
     <title>{{.Name}}</title>
     <link rel="stylesheet" href="/assets/styles.css"></link>
   </head>
-  <body class="single">
-    <div>
+  <body>
+    <header>
+      <h1><a href="/">{{.Title}}</a></h1>
+      {{ if .LoggedIn }}
+      <a href="/-/create">create</a>
+      <a href="/-/sign-out">sign-out</a>
+      {{ else }}
+      <a href="/-/sign-in" title="Sign-in">sign-in</a>
+      {{ end }}
+    </header>
+
+    <div class="container">
       <div class="repo {{if .IsPrivate}}private{{end}}">
-        <h1><a href="/">↺</a>&ensp;<a href="/{{.Name}}">{{.Name}}</a></h1>
+        <h1><a href="/{{.Name}}">{{.Name}}</a></h1>
         {{if .Web}}&rarr; <a href="{{.Web}}">{{.Web}}</a>{{end}}
         <p>{{.Description}}</p>
-      </div>
+        {{ if $.LoggedIn }}
+        <div class="buttons">
+          <a href="/{{.Name}}/edit">edit</a>
+          <a href="/{{.Name}}/delete">delete</a>
+        </div>
+        {{ end }}
 
-      <hr/>
-
-      <div class="clone">
-        <span>git clone</span>
-        <code>{{.Url}}/{{.CloneUrl}}</code>
+        <pre class="clone"><code>git clone {{.Url}}/{{.CloneUrl}}</code></pre>
       </div>
     </div>
 

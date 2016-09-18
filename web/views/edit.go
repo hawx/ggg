@@ -10,23 +10,24 @@ const edit = `<!DOCTYPE html>
   </head>
   <body>
     <header>
-      <div class="container">
-        <h1>edit</h1>
-        <a href="/">home</a>
-        <a href="/sign-out">sign-out</a>
-      </div>
+      <h1><a href="/">{{.Title}}</a></h1>
+      <a href="/-/create">create</a>
+      <a href="/sign-out">sign-out</a>
     </header>
 
     <div class="container">
+      <div class="repo">
+        <h1><a href="/{{.Name}}">{{.Name}}</a></h1>
+      </div>
+
       <form method="POST" action="/{{.Name}}/edit">
-        <label for="name">Name</label>
-        <input name="name" id="name" type="text" value="{{.Name}}" disabled="disabled" />
+        <input name="name" id="name" type="hidden" value="{{.Name}}" />
 
         <label for="web">Web</label>
         <input name="web" id="web" type="text" value="{{.Web}}" />
 
         <label for="description">Description</label>
-        <input name="description" id="description" type="text" value="{{.Description}}" />
+        <textarea name="description" id="description">{{.Description}}</textarea>
 
         <label for="branch">Default Branch</label>
         <select name="branch">
