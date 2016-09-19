@@ -81,7 +81,6 @@ header h1 a {
 .repo {
     margin: 1.3rem 0;
     padding: 0 .5rem;
-    width: 100%;
     position: relative;
 }
 
