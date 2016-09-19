@@ -22,7 +22,7 @@ const list = `<!DOCTYPE html>
     <div class="container">
       <ul class="repos">
         {{ range .Repos }}
-        <li class="repo">
+        <li class="repo {{if .IsPrivate}}private{{end}}">
           <h1><a href="/{{.Name}}">{{.Name}}</a></h1>
           <p>{{.Description}}</p>
           {{ if $.LoggedIn }}
