@@ -9,15 +9,7 @@ const list = `<!DOCTYPE html>
     <link rel="stylesheet" href="/assets/styles.css"></link>
   </head>
   <body>
-    <header>
-      <h1><a href="/">{{.Title}}</a></h1>
-      {{ if .LoggedIn }}
-      <a href="/-/create">create</a>
-      <a href="/-/sign-out">sign-out</a>
-      {{ else }}
-      <a href="/-/sign-in" title="Sign-in">sign-in</a>
-      {{ end }}
-    </header>
+    {{ template "header" . }}
 
     <div class="container">
       <ul class="repos">

@@ -9,11 +9,7 @@ const create = `<!DOCTYPE html>
     <link rel="stylesheet" href="/assets/styles.css"></link>
   </head>
   <body>
-    <header>
-      <h1><a href="/">{{.Title}}</a></h1>
-      <a href="/-/create">create</a>
-      <a href="/sign-out">sign-out</a>
-    </header>
+    {{ template "header" . }}
 
     <div class="container">
       <form method="POST" action="/-/create">
