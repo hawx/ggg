@@ -1,21 +1,35 @@
 package git
 
 import (
-	"errors"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	goGit "gopkg.in/src-d/go-git.v4"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
-func Branches(path string) []string {
-	branches := []string{}
-	for _, branch := range strings.Split(run(path, "branch"), "\n") {
-		if len(branch) > 0 {
-			branches = append(branches, branch[2:])
-		}
+func Branches(path string) (branches []string) {
+	r, err := goGit.PlainOpen(path)
+	if err != nil {
+		return branches
 	}
+
+	refs, err := r.References()
+	if err != nil {
+		return branches
+	}
+
+	refs.ForEach(func(ref *plumbing.Reference) error {
+		if ref.IsBranch() {
+			branches = append(branches, ref.Name().Short())
+		}
+
+		return nil
+	})
+
 	return branches
 }
 
@@ -29,28 +43,25 @@ func GetDefaultBranch(path string) string {
 	return ""
 }
 
-func GetBranch(path, branch string) string {
-	return run(path, "rev-parse", branch)
-}
-
 func ReadFile(path, branch, file string) (string, error) {
-	branchRef := GetBranch(path, branch)
-
-	ref := ""
-	for _, row := range strings.Split(run(path, "ls-tree", branchRef), "\n") {
-		cols := strings.Fields(row)
-
-		if cols[3] == file && cols[1] == "blob" {
-			ref = cols[2]
-			break
-		}
+	r, err := goGit.PlainOpen(path)
+	if err != nil {
+		return "", err
 	}
 
-	if ref == "" {
-		return "", errors.New("No such file: " + file)
+	branchRef, _ := r.ResolveRevision(plumbing.Revision("refs/heads/" + branch))
+
+	c, err := r.Commit(*branchRef)
+	if err != nil {
+		return "", err
 	}
 
-	return run(path, "cat-file", "blob", ref), nil
+	f, err := c.File(file)
+	if err != nil {
+		return "", err
+	}
+
+	return f.Contents()
 }
 
 func CreateRepo(path string) {
