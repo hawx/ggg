@@ -9,6 +9,8 @@ import (
 
 	goGit "gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing"
+	"gopkg.in/src-d/go-git.v4/plumbing/filemode"
+	"gopkg.in/src-d/go-git.v4/plumbing/object"
 )
 
 func Branches(path string) (branches []string) {
@@ -31,6 +33,65 @@ func Branches(path string) (branches []string) {
 	})
 
 	return branches
+}
+
+type File struct {
+	Name        string
+	Path        string
+	IsDir       bool
+	IsSubmodule bool
+}
+
+func Files(path, branch, root string) (files []File, err error) {
+	r, err := goGit.PlainOpen(path)
+	if err != nil {
+		return files, err
+	}
+
+	branchRef, _ := r.ResolveRevision(plumbing.Revision("refs/heads/" + branch))
+
+	c, err := r.Commit(*branchRef)
+	if err != nil {
+		return files, err
+	}
+
+	tree, err := c.Tree()
+	if err != nil {
+		return files, err
+	}
+
+	if root != "" {
+		tree, err = tree.Tree(root)
+		if err != nil {
+			return files, err
+		}
+	}
+
+	walker := object.NewTreeWalker(tree, false)
+	defer walker.Close()
+
+	for {
+		name, entry, err := walker.Next()
+		if err != nil {
+			return files, err
+		}
+
+		path := name
+		if root != "" {
+			path = root + "/" + name
+		}
+
+		switch entry.Mode {
+		case filemode.Submodule:
+			files = append(files, File{Name: name, Path: path, IsSubmodule: true})
+		case filemode.Dir:
+			files = append(files, File{Name: name, Path: path, IsDir: true})
+		default:
+			files = append(files, File{Name: name, Path: path})
+		}
+	}
+
+	return files, nil
 }
 
 func GetDefaultBranch(path string) string {

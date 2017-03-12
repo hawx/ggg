@@ -1,12 +1,8 @@
 package views
 
-import (
-	"html/template"
+import "html/template"
 
-	"hawx.me/code/ggg/git"
-)
-
-const repo = `<!DOCTYPE html>
+const blob = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
@@ -34,13 +30,12 @@ const repo = `<!DOCTYPE html>
     </div>
 
     <aside>
-      {{ template "files" . }}
       {{ template "readme" . }}
     </aside>
   </body>
 </html>`
 
-type RepoCtx struct {
+type BlobCtx struct {
 	Title    string
 	Url      string
 	LoggedIn bool
@@ -50,7 +45,6 @@ type RepoCtx struct {
 	Description  string
 	Path         string
 	CloneUrl     string
-	Files        []git.File
 	IsEmpty      bool
 	IsPrivate    bool
 	ParentDir    string

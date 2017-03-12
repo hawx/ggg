@@ -141,7 +141,7 @@ hr {
 
 figure {
     border: 1px solid #bbb;
-    margin: 0;
+    margin: 1rem 0;
     padding: 0;
 }
 
@@ -284,4 +284,22 @@ article th {
     text-align: left;
     border-bottom: 1px solid #eee;
 }
+
+.files {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.files li {
+    margin: 0 .65rem;
+    padding: .65rem;
+    border-bottom: 1px dotted #ddd;
+    font-size: .75rem;
+}
+
+.files li:last-child {
+    border-bottom: none;
+}
+
 `

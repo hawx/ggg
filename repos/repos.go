@@ -37,12 +37,6 @@ type Repo struct {
 	Branch      string
 	LastUpdate  time.Time
 	IsPrivate   bool
-	Readme      Readme
-}
-
-type Readme struct {
-	Name     string
-	Contents template.HTML
 }
 
 func (r *Repo) CloneUrl() string {
@@ -53,56 +47,49 @@ func (r *Repo) Branches() []string {
 	return git.Branches(r.Path)
 }
 
+func (r *Repo) Files(tree string) []git.File {
+	files, _ := git.Files(r.Path, r.DefaultBranch(), tree)
+	return files
+}
+
 func (r *Repo) IsEmpty() bool {
 	return len(r.Branches()) == 0
 }
 
-func (r *Repo) ReadmeContents() template.HTML {
-	r.getReadme()
-	return r.Readme.Contents
+func (r *Repo) Contents(file string) (string, error) {
+	return git.ReadFile(r.Path, r.DefaultBranch(), file)
 }
 
-func (r *Repo) ReadmeName() string {
-	r.getReadme()
-	return r.Readme.Name
-}
-
-func (r *Repo) getReadme() {
-	if r.Readme.Contents != "" {
-		return
-	}
-
-	if r.Branch == "" {
-		r.Branch = git.GetDefaultBranch(r.Path)
-	}
+func (r *Repo) Readme() (name string, contents template.HTML) {
+	branch := r.DefaultBranch()
 
 	for _, file := range []string{"README.md", "Readme.md", "README.markdown", "readme.markdown"} {
-		text, err := git.ReadFile(r.Path, r.Branch, file)
+		text, err := git.ReadFile(r.Path, branch, file)
 		if err != nil {
-			log.Println(r.Name, "Readme(): ", err)
 			continue
 		}
 
-		r.Readme = Readme{
-			file,
-			template.HTML(github_flavored_markdown.Markdown([]byte(text))),
-		}
-
-		return
+		return file, template.HTML(github_flavored_markdown.Markdown([]byte(text)))
 	}
 
 	for _, file := range []string{"README"} {
-		text, err := git.ReadFile(r.Path, r.Branch, file)
+		text, err := git.ReadFile(r.Path, branch, file)
 		if err != nil {
-			log.Println(r.Name, "Readme():", err)
 			continue
 		}
 
-		r.Readme = Readme{file, template.HTML("<pre class='full'>" + text + "</pre>")}
-		return
+		return file, template.HTML("<pre class='full'>" + text + "</pre>")
 	}
 
-	r.Readme = Readme{"README", "&hellip;"}
+	return "README", template.HTML("&hellip;")
+}
+
+func (r *Repo) DefaultBranch() string {
+	if r.Branch == "" {
+		return git.GetDefaultBranch(r.Path)
+	}
+
+	return r.Branch
 }
 
 type Db interface {
@@ -145,7 +132,6 @@ func (db BoltDb) Create(name, web, description, branch string, isPrivate bool) {
 		Branch:      branch,
 		LastUpdate:  time.Now(),
 		IsPrivate:   isPrivate,
-		Readme:      Readme{},
 	}
 
 	db.Save(repo)
