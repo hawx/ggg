@@ -141,7 +141,7 @@ hr {
 
 figure {
     border: 1px solid #bbb;
-    margin: 1rem 0;
+    margin: 1rem .5rem;
     padding: 0;
 }
 
@@ -302,4 +302,9 @@ article th {
     border-bottom: none;
 }
 
+.files .fa {
+    margin-right: .3rem;
+    height: 14px;
+    width: 14px;
+}
 `

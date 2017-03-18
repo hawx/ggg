@@ -29,8 +29,8 @@ const blob = `<!DOCTYPE html>
       </div>
     </div>
 
-    <aside>
-      {{ template "readme" . }}
+    <aside class="container">
+      {{ template "file" . }}
     </aside>
   </body>
 </html>`
@@ -47,7 +47,14 @@ type BlobCtx struct {
 	CloneUrl     string
 	IsEmpty      bool
 	IsPrivate    bool
+	Dir          string
+	DirParts     []PathPart
 	ParentDir    string
 	FileName     string
 	FileContents template.HTML
+}
+
+type PathPart struct {
+	Name string
+	Path string
 }

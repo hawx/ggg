@@ -1,6 +1,8 @@
 package repos
 
 import (
+	"strings"
+
 	"hawx.me/code/ggg/git"
 
 	"github.com/boltdb/bolt"
@@ -49,6 +51,18 @@ func (r *Repo) Branches() []string {
 
 func (r *Repo) Files(tree string) []git.File {
 	files, _ := git.Files(r.Path, r.DefaultBranch(), tree)
+
+	sort.Slice(files, func(i, j int) bool {
+		if files[i].IsDir && !files[j].IsDir {
+			return true
+		}
+		if !files[i].IsDir && files[j].IsDir {
+			return false
+		}
+
+		return strings.ToLower(files[i].Name) < strings.ToLower(files[j].Name)
+	})
+
 	return files
 }
 

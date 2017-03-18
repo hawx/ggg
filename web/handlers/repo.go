@@ -2,14 +2,13 @@ package handlers
 
 import (
 	"html/template"
+	"net/http"
 	"path"
+	"strings"
 
 	"hawx.me/code/ggg/repos"
 	"hawx.me/code/ggg/web/views"
-
 	"hawx.me/code/route"
-
-	"net/http"
 )
 
 type Protect func(handler, errHandler http.Handler) http.Handler
@@ -89,6 +88,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 				Files:        repo.Files(""),
 				IsEmpty:      repo.IsEmpty(),
 				IsPrivate:    repo.IsPrivate,
+				Dir:          "",
 				ParentDir:    "",
 				FileName:     readmeName,
 				FileContents: readmeContents,
@@ -113,6 +113,8 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 				Files:        repo.Files(tree),
 				IsEmpty:      repo.IsEmpty(),
 				IsPrivate:    repo.IsPrivate,
+				Dir:          tree,
+				DirParts:     splitDir(tree),
 				ParentDir:    parentDir,
 				FileName:     "",
 				FileContents: "",
@@ -123,7 +125,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 			blob := route.Vars(r)["blob"]
 
 			contents, _ := repo.Contents(blob)
-			name := path.Base(blob)
+			dir, name := path.Split(blob)
 
 			w.Header().Add("Content-Type", "text/html")
 			views.Blob.Execute(w, views.BlobCtx{
@@ -137,7 +139,9 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 				CloneUrl:     repo.CloneUrl(),
 				IsEmpty:      repo.IsEmpty(),
 				IsPrivate:    repo.IsPrivate,
-				ParentDir:    "",
+				Dir:          prettyDir(dir),
+				DirParts:     splitDir(dir),
+				ParentDir:    dir,
 				FileName:     name,
 				FileContents: template.HTML(contents),
 			})
@@ -145,4 +149,28 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 
 		return r
 	}
+}
+
+func splitDir(dir string) (res []views.PathPart) {
+	parts := strings.Split(dir, "/")
+
+	last := ""
+	for _, part := range parts {
+		if part == "" {
+			continue
+		}
+
+		last = last + "/" + part
+		res = append(res, views.PathPart{Name: part, Path: last})
+	}
+
+	return res
+}
+
+func prettyDir(dir string) string {
+	if dir == "" {
+		return "/"
+	}
+
+	return dir[:len(dir)-1]
 }
