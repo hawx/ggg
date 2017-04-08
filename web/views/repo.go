@@ -3,7 +3,7 @@ package views
 import (
 	"html/template"
 
-	"hawx.me/code/ggg/git"
+	"hawx.me/code/ggg/repos"
 )
 
 const repo = `<!DOCTYPE html>
@@ -51,7 +51,7 @@ type RepoCtx struct {
 	Description  string
 	Path         string
 	CloneUrl     string
-	Files        []git.File
+	Files        []repos.File
 	IsEmpty      bool
 	IsPrivate    bool
 	Dir          string
