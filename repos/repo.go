@@ -2,10 +2,6 @@ package repos
 
 import (
 	"html/template"
-	"log"
-	"os"
-	"os/exec"
-	"path/filepath"
 	"sort"
 	"strings"
 	"time"
@@ -17,13 +13,18 @@ import (
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 )
 
-func Branches(path string) (branches []string) {
-	r, err := git.PlainOpen(path)
-	if err != nil {
-		return branches
-	}
+type GitRepo struct {
+	repo *git.Repository
+}
 
-	refs, err := r.References()
+func OpenRepo(path string) (*GitRepo, error) {
+	r, err := git.PlainOpen(path)
+
+	return &GitRepo{repo: r}, err
+}
+
+func (g *GitRepo) Branches() (branches []string) {
+	refs, err := g.repo.References()
 	if err != nil {
 		return branches
 	}
@@ -39,25 +40,13 @@ func Branches(path string) (branches []string) {
 	return branches
 }
 
-type File struct {
-	Name        string
-	Path        string
-	IsDir       bool
-	IsSubmodule bool
-}
-
-func Files(path, branch, root string) (files []File, err error) {
-	r, err := git.PlainOpen(path)
+func (g *GitRepo) Files(branch, root string) (files []File, err error) {
+	branchRef, err := g.repo.ResolveRevision(plumbing.Revision("refs/heads/" + branch))
 	if err != nil {
 		return files, err
 	}
 
-	branchRef, err := r.ResolveRevision(plumbing.Revision("refs/heads/" + branch))
-	if err != nil {
-		return files, err
-	}
-
-	c, err := r.Commit(*branchRef)
+	c, err := g.repo.Commit(*branchRef)
 	if err != nil {
 		return files, err
 	}
@@ -101,28 +90,13 @@ func Files(path, branch, root string) (files []File, err error) {
 	return files, nil
 }
 
-func GetDefaultBranch(path string) string {
-	for _, branch := range strings.Split(run(path, "branch"), "\n") {
-		if len(branch) > 0 && branch[0] == 42 {
-			return branch[2:]
-		}
-	}
-
-	return ""
-}
-
-func ReadFile(path, branch, file string) (string, error) {
-	r, err := git.PlainOpen(path)
+func (g *GitRepo) ReadFile(branch, file string) (string, error) {
+	branchRef, err := g.repo.ResolveRevision(plumbing.Revision("refs/heads/" + branch))
 	if err != nil {
 		return "", err
 	}
 
-	branchRef, err := r.ResolveRevision(plumbing.Revision("refs/heads/" + branch))
-	if err != nil {
-		return "", err
-	}
-
-	c, err := r.Commit(*branchRef)
+	c, err := g.repo.Commit(*branchRef)
 	if err != nil {
 		return "", err
 	}
@@ -135,36 +109,11 @@ func ReadFile(path, branch, file string) (string, error) {
 	return f.Contents()
 }
 
-func CreateRepo(path string) {
-	os.Mkdir(path, 0775)
-	run(path, "init", "--bare", "--shared=group")
-
-	sampleHook := filepath.Join(path, "hooks", "post-update.sample")
-	hook := filepath.Join(path, "hooks", "post-update") // need to replace with hook that calls ggg!
-	os.Rename(sampleHook, hook)
-	run(path, "update-server-info")
-}
-
-func CopyRepo(path, remoteUrl string) {
-	log.Println("git clone --bare", remoteUrl, path)
-	run("", "clone", "--bare", remoteUrl, path)
-
-	sampleHook := filepath.Join(path, "hooks", "post-update.sample")
-	hook := filepath.Join(path, "hooks", "post-update") // need to replace with hook that calls ggg!
-	os.Rename(sampleHook, hook)
-	run(path, "update-server-info")
-}
-
-func run(dir string, args ...string) string {
-	cmd := exec.Command("git", args...)
-	cmd.Dir = dir
-	out, err := cmd.Output()
-
-	if err != nil {
-		return ""
-	}
-
-	return strings.TrimSpace(string(out))
+type File struct {
+	Name        string
+	Path        string
+	IsDir       bool
+	IsSubmodule bool
 }
 
 type Repo struct {
@@ -181,12 +130,22 @@ func (r *Repo) CloneUrl() string {
 	return r.Name + ".git"
 }
 
-func (r *Repo) Branches() []string {
-	return Branches(r.Path)
+func (r *Repo) Branches() (branches []string) {
+	g, err := OpenRepo(r.Path)
+	if err != nil {
+		return branches
+	}
+
+	return g.Branches()
 }
 
-func (r *Repo) Files(tree string) []File {
-	files, _ := Files(r.Path, r.DefaultBranch(), tree)
+func (r *Repo) Files(tree string) (files []File) {
+	g, err := OpenRepo(r.Path)
+	if err != nil {
+		return files
+	}
+
+	files, _ = g.Files(r.DefaultBranch(), tree)
 
 	sort.Slice(files, func(i, j int) bool {
 		if files[i].IsDir && !files[j].IsDir {
@@ -207,14 +166,24 @@ func (r *Repo) IsEmpty() bool {
 }
 
 func (r *Repo) Contents(file string) (string, error) {
-	return ReadFile(r.Path, r.DefaultBranch(), file)
+	g, err := OpenRepo(r.Path)
+	if err != nil {
+		return "", err
+	}
+
+	return g.ReadFile(r.DefaultBranch(), file)
 }
 
 func (r *Repo) Readme() (name string, contents template.HTML) {
+	g, err := OpenRepo(r.Path)
+	if err != nil {
+		return "", template.HTML("no such repo")
+	}
+
 	branch := r.DefaultBranch()
 
 	for _, file := range []string{"README.md", "Readme.md", "README.markdown", "readme.markdown"} {
-		text, err := ReadFile(r.Path, branch, file)
+		text, err := g.ReadFile(branch, file)
 		if err != nil {
 			continue
 		}
@@ -223,7 +192,7 @@ func (r *Repo) Readme() (name string, contents template.HTML) {
 	}
 
 	for _, file := range []string{"README"} {
-		text, err := ReadFile(r.Path, branch, file)
+		text, err := g.ReadFile(branch, file)
 		if err != nil {
 			continue
 		}
