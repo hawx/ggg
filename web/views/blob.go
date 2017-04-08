@@ -1,19 +1,14 @@
 package views
 
-import (
-	"html/template"
+import "html/template"
 
-	"hawx.me/code/ggg/git"
-)
-
-const repo = `<!DOCTYPE html>
+const blob = `<!DOCTYPE html>
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{.Name}}</title>
     <link rel="stylesheet" href="/assets/styles.css"></link>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
   <body>
     {{ template "header" . }}
@@ -35,13 +30,12 @@ const repo = `<!DOCTYPE html>
     </div>
 
     <aside class="container">
-      {{ template "files" . }}
-      {{ template "readme" . }}
+      {{ template "file" . }}
     </aside>
   </body>
 </html>`
 
-type RepoCtx struct {
+type BlobCtx struct {
 	Title    string
 	Url      string
 	LoggedIn bool
@@ -51,7 +45,6 @@ type RepoCtx struct {
 	Description  string
 	Path         string
 	CloneUrl     string
-	Files        []git.File
 	IsEmpty      bool
 	IsPrivate    bool
 	Dir          string
@@ -59,4 +52,9 @@ type RepoCtx struct {
 	ParentDir    string
 	FileName     string
 	FileContents template.HTML
+}
+
+type PathPart struct {
+	Name string
+	Path string
 }

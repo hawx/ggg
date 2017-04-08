@@ -1,0 +1,21 @@
+package views
+
+const readme = `<figure>
+  {{if .IsEmpty}}
+  <figcaption>
+    <h3>Empty</h3>
+  </figcaption>
+
+  <article>
+    <p>Maybe try pushing...</p>
+  </article>
+  {{else}}
+  <figcaption>
+    <h3>{{.FileName}}</h3>
+  </figcaption>
+
+  <article>
+    {{.FileContents}}
+  </article>
+  {{end}}
+</figure>`

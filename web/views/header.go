@@ -8,4 +8,4 @@ const header = `<header>
   {{ else }}
   <a href="/-/sign-in" title="Sign-in">sign-in</a>
   {{ end }}
-</header> `
+</header>`

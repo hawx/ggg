@@ -70,6 +70,7 @@ func main() {
 
 		repo.Html.ServeHTTP(w, r)
 	})
+
 	route.Handle("/:name/edit", shield(handlers.Edit(db, conf.Title)))
 	route.Handle("/:name/delete", shield(handlers.Delete(db)))
 
