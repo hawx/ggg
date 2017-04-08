@@ -254,6 +254,11 @@ article pre {
     color: rgb(90, 10, 20);
 }
 
+article pre.content {
+    color: black;
+    padding: 0;
+}
+
 article blockquote {
     margin-left: 0;
     padding-left: 1.3em;

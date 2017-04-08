@@ -15,6 +15,6 @@ const file = `<figure>
   </figcaption>
 
   <article>
-    {{.FileContents}}
+    <pre class="content">{{.FileContents}}</pre>
   </article>
 </figure>`
