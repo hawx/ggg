@@ -1,6 +1,7 @@
 package repos
 
 import (
+	"html"
 	"html/template"
 	"sort"
 	"strings"
@@ -197,7 +198,7 @@ func (r *Repo) Readme() (name string, contents template.HTML) {
 			continue
 		}
 
-		return file, template.HTML("<pre class='full'>" + text + "</pre>")
+		return file, template.HTML("<pre class='full'>" + html.EscapeString(text) + "</pre>")
 	}
 
 	return "README", template.HTML("&hellip;")
