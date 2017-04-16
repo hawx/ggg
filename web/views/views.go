@@ -5,7 +5,7 @@ import (
 	"io"
 )
 
-var List, Create, Edit, Repo, Blob interface {
+var List, Create, Edit, Repo, Blob, Tree interface {
 	Execute(io.Writer, interface{}) error
 }
 
@@ -19,12 +19,14 @@ func init() {
 	tmpl = template.Must(tmpl.New("file").Parse(file))
 	tmpl = template.Must(tmpl.New("readme").Parse(readme))
 	tmpl = template.Must(tmpl.New("blob").Parse(blob))
+	tmpl = template.Must(tmpl.New("tree").Parse(tree))
 
 	List = &wrappedTemplate{tmpl, "list"}
 	Create = &wrappedTemplate{tmpl, "create"}
 	Edit = &wrappedTemplate{tmpl, "edit"}
 	Repo = &wrappedTemplate{tmpl, "repo"}
 	Blob = &wrappedTemplate{tmpl, "blob"}
+	Tree = &wrappedTemplate{tmpl, "tree"}
 }
 
 type wrappedTemplate struct {

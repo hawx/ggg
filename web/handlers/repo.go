@@ -101,23 +101,21 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 			parentDir := path.Dir(tree)
 
 			w.Header().Add("Content-Type", "text/html")
-			views.Repo.Execute(w, views.RepoCtx{
-				Title:        title,
-				Url:          url,
-				LoggedIn:     loggedIn,
-				Name:         repo.Name,
-				Web:          repo.Web,
-				Description:  repo.Description,
-				Path:         repo.Path,
-				CloneUrl:     repo.CloneUrl(),
-				Files:        repo.Files(tree),
-				IsEmpty:      repo.IsEmpty(),
-				IsPrivate:    repo.IsPrivate,
-				Dir:          tree,
-				DirParts:     splitDir(tree),
-				ParentDir:    parentDir,
-				FileName:     "",
-				FileContents: "",
+			views.Tree.Execute(w, views.RepoCtx{
+				Title:       title,
+				Url:         url,
+				LoggedIn:    loggedIn,
+				Name:        repo.Name,
+				Web:         repo.Web,
+				Description: repo.Description,
+				Path:        repo.Path,
+				CloneUrl:    repo.CloneUrl(),
+				Files:       repo.Files(tree),
+				IsEmpty:     repo.IsEmpty(),
+				IsPrivate:   repo.IsPrivate,
+				Dir:         tree,
+				DirParts:    splitDir(tree),
+				ParentDir:   parentDir,
 			})
 		})
 
