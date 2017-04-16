@@ -1,6 +1,6 @@
-package views
+package parts
 
-const file = `<figure>
+const FilesPath = `<figure>
   <figcaption>
     <h3>
       <a href="/{{.Name}}">{{.Name}}</a>
@@ -10,11 +10,6 @@ const file = `<figure>
       <a href="/{{$.Name}}/tree{{.Path}}">{{.Name}}</a>
       <span>/</span>
       {{ end }}
-      <span>{{.FileName}}</span>
     </h3>
   </figcaption>
-
-  <article>
-    <pre class="content">{{.FileContents}}</pre>
-  </article>
 </figure>`

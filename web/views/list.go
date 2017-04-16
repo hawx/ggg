@@ -15,14 +15,18 @@ const list = `<!DOCTYPE html>
       <ul class="repos">
         {{ range .Repos }}
         <li class="repo {{if .IsPrivate}}private{{end}}">
-          <h1><a href="/{{.Name}}">{{.Name}}</a></h1>
-          <p>{{.Description}}</p>
-          {{ if $.LoggedIn }}
-          <div class="buttons">
-            <a href="/{{.Name}}/edit">edit</a>
-            <a href="/{{.Name}}/delete">delete</a>
+          <div class="repo-header">
+            <h1><a href="/{{.Name}}">{{.Name}}</a></h1>
+
+            {{ if $.LoggedIn }}
+            <div class="buttons">
+              <a href="/{{.Name}}/edit">edit</a>
+              <a href="/{{.Name}}/delete">delete</a>
+            </div>
+            {{ end }}
           </div>
-          {{ end }}
+
+          <p>{{.Description}}</p>
         </li>
         {{ end }}
       </ul>

@@ -16,6 +16,10 @@ body {
     margin: 1rem;
 }
 
+.container.is-wide {
+    max-width: 60rem;
+}
+
 aside {
     max-width: 40rem;
     margin: 1rem 1.5rem;
@@ -33,6 +37,10 @@ a {
 
 a:hover {
     color: hsl(208, 56%, 38%);
+}
+
+a.external-link {
+    font-style: italic;
 }
 
 header {
@@ -86,26 +94,22 @@ header h1 a {
 
 .repo h1 {
     font-size: 1.2rem;
+    margin: 0;
 }
 
 .repo h1 a {
     text-decoration: none;
 }
 
-.repo .buttons {
-    float: right;
-    position: relative;
-    top: -2.3rem;
-    opacity: 0;
-    background: white;
-}
-
-.repo:hover .buttons {
-    opacity: 1;
-}
-
 .repo.private a {
     color: hsl(20, 51%, 44%);
+}
+
+.repo-header {
+    display: flex;
+    justify-content: space-between;
+    margin: 1rem 0;
+    line-height: 1rem;
 }
 
 .clone {
@@ -154,7 +158,6 @@ figure figcaption {
 figure figcaption h3 {
     margin: 0;
     font-size: .75rem;
-    letter-spacing: .01rem;
 }
 
 figure article {

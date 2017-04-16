@@ -14,22 +14,11 @@ const blob = `<!DOCTYPE html>
     {{ template "header" . }}
 
     <div class="container">
-      <div class="repo {{if .IsPrivate}}private{{end}}">
-        <h1><a href="/{{.Name}}">{{.Name}}</a></h1>
-        {{if .Web}}&rarr; <a href="{{.Web}}">{{.Web}}</a>{{end}}
-        <p>{{.Description}}</p>
-        {{ if $.LoggedIn }}
-        <div class="buttons">
-          <a href="/{{.Name}}/edit">edit</a>
-          <a href="/{{.Name}}/delete">delete</a>
-        </div>
-        {{ end }}
-
-        <pre class="clone"><code>git clone {{.Url}}/{{.CloneUrl}}</code></pre>
-      </div>
+      {{ template "description" . }}
     </div>
 
-    <aside class="container">
+    <aside class="container is-wide">
+      {{ template "filespath" . }}
       {{ template "file" . }}
     </aside>
   </body>

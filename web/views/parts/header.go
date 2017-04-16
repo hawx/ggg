@@ -1,6 +1,6 @@
-package views
+package parts
 
-const header = `<header>
+const Header = `<header>
   <h1><a href="/">{{.Title}}</a></h1>
   {{ if .LoggedIn }}
   <a href="/-/create">create</a>

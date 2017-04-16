@@ -1,6 +1,6 @@
-package views
+package parts
 
-const readme = `<figure>
+const Readme = `<figure>
   {{if .IsEmpty}}
   <figcaption>
     <h3>Empty</h3>

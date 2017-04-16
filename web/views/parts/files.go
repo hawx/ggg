@@ -1,6 +1,6 @@
-package views
+package parts
 
-const files = `<figure>
+const Files = `<figure>
   <figcaption>
     <h3>
       <a href="/{{.Name}}">{{.Name}}</a>
