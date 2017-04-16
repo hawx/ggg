@@ -155,7 +155,6 @@ figure figcaption h3 {
     margin: 0;
     font-size: .75rem;
     letter-spacing: .01rem;
-    font-variant: small-caps;
 }
 
 figure article {
