@@ -162,6 +162,7 @@ figure figcaption h3 {
 
 figure article {
     padding: 0.65rem 1.3rem;
+    overflow-x: auto;
 }
 
 figure article pre.full {
@@ -252,7 +253,6 @@ article pre > code {
 article pre {
     padding: .7em 1.3em;
     font-family: Menlo, monospace;
-    white-space: pre-wrap;
     color: rgb(90, 10, 20);
 }
 
