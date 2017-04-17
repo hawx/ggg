@@ -155,6 +155,10 @@ figure figcaption {
     margin: 0 0.65rem;
 }
 
+figure figcaption:last-child {
+    border-bottom: none;
+}
+
 figure figcaption h3 {
     margin: 0;
     font-size: .75rem;
