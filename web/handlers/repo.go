@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"html"
 	"html/template"
 	"net/http"
 	"path"
@@ -141,7 +142,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 				DirParts:     splitDir(dir),
 				ParentDir:    dir,
 				FileName:     name,
-				FileContents: template.HTML(contents),
+				FileContents: template.HTML(html.EscapeString(contents)),
 			})
 		})
 
