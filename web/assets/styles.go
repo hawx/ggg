@@ -159,9 +159,13 @@ figure figcaption:last-child {
     border-bottom: none;
 }
 
-figure figcaption h3 {
+figcaption h3 {
     margin: 0;
     font-size: .75rem;
+}
+
+figcaption .path a {
+    text-decoration: none;
 }
 
 figure article {

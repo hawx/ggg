@@ -128,6 +128,8 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 			ext := path.Ext(name)
 			if len(ext) > 1 {
 				ext = "lang-" + ext[1:]
+			} else {
+				ext = "nohighlight"
 			}
 
 			w.Header().Add("Content-Type", "text/html")

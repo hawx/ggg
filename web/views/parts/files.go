@@ -2,7 +2,7 @@ package parts
 
 const Files = `<figure>
   <figcaption>
-    <h3>
+    <h3 class="path">
       <a href="/{{.Name}}">{{.Name}}</a>
       <span>/</span>
 
@@ -10,7 +10,6 @@ const Files = `<figure>
       <a href="/{{$.Name}}/tree{{.Path}}">{{.Name}}</a>
       <span>/</span>
       {{ end }}
-      <span>{{.FileName}}</span>
     </h3>
   </figcaption>
 
