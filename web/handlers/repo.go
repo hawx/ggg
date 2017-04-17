@@ -125,6 +125,10 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 
 			contents, _ := repo.Contents(blob)
 			dir, name := path.Split(blob)
+			ext := path.Ext(name)
+			if len(ext) > 1 {
+				ext = "lang-" + ext[1:]
+			}
 
 			w.Header().Add("Content-Type", "text/html")
 			views.Blob.Execute(w, views.BlobCtx{
@@ -143,6 +147,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 				ParentDir:    dir,
 				FileName:     name,
 				FileContents: template.HTML(html.EscapeString(contents)),
+				FileLang:     ext,
 			})
 		})
 

@@ -19,6 +19,6 @@ const Description = `
   {{end}}
   <p>{{.Description}}</p>
 
-  <pre class="clone"><code>git clone {{.Url}}/{{.CloneUrl}}</code></pre>
+  <pre class="clone"><code class="nohighlight">git clone {{.Url}}/{{.CloneUrl}}</code></pre>
 </div>
 `

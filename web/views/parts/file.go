@@ -8,6 +8,6 @@ const File = `<figure>
   </figcaption>
 
   <article>
-    <pre class="content">{{.FileContents}}</pre>
+    <pre class="content"><code class="{{.FileLang}}">{{.FileContents}}</code></pre>
   </article>
 </figure>`

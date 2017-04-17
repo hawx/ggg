@@ -79,6 +79,7 @@ func main() {
 	route.Handle("/-/sign-out", uberich.SignOut("/"))
 
 	route.Handle("/assets/styles.css", mux.Method{"GET": assets.Styles})
+	route.Handle("/assets/highlight.js", mux.Method{"GET": assets.Highlight})
 
 	serve.Serve(*port, *socket, filters.Log(route.Default))
 }

@@ -18,6 +18,8 @@ const blob = `<!DOCTYPE html>
       {{ template "filespath" . }}
       {{ template "file" . }}
     </aside>
+
+    {{ template "highlight" }}
   </body>
 </html>`
 
@@ -38,6 +40,7 @@ type BlobCtx struct {
 	ParentDir    string
 	FileName     string
 	FileContents template.HTML
+	FileLang     string
 }
 
 type PathPart struct {

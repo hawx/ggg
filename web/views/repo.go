@@ -24,6 +24,8 @@ const repo = `<!DOCTYPE html>
       {{ end }}
       {{ template "readme" . }}
     </aside>
+
+    {{ template "highlight" }}
   </body>
 </html>`
 

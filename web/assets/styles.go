@@ -254,6 +254,10 @@ article pre > code {
     color: rgb(90, 10, 20);
 }
 
+article pre.content code {
+    color: black;
+}
+
 article pre {
     padding: .7em 1.3em;
     font-family: Menlo, monospace;
@@ -317,5 +321,67 @@ article th {
     margin-right: .3rem;
     height: 14px;
     width: 14px;
+}
+
+
+/*
+  mono-blue
+  https://github.com/isagalaev/highlight.js/blob/master/src/styles/mono-blue.css
+
+  Five-color theme from a single blue hue.
+*/
+.hljs {
+    display: block;
+    overflow-x: auto;
+}
+
+.hljs {
+    color: #00193a;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-title,
+.hljs-section,
+.hljs-doctag,
+.hljs-name,
+.hljs-strong {
+    font-weight: bold;
+}
+
+.hljs-comment {
+    color: #738191;
+}
+
+.hljs-string,
+.hljs-title,
+.hljs-section,
+.hljs-built_in,
+.hljs-literal,
+.hljs-type,
+.hljs-addition,
+.hljs-tag,
+.hljs-quote,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class {
+    color: #0048ab;
+}
+
+.hljs-meta,
+.hljs-subst,
+.hljs-symbol,
+.hljs-regexp,
+.hljs-attribute,
+.hljs-deletion,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-link,
+.hljs-bullet {
+    color: #4c81c9;
+}
+
+.hljs-emphasis {
+    font-style: italic;
 }
 `
