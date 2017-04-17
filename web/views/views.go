@@ -19,6 +19,7 @@ func init() {
 	tmpl = template.Must(tmpl.New("files").Parse(parts.Files))
 	tmpl = template.Must(tmpl.New("filespath").Parse(parts.FilesPath))
 	tmpl = template.Must(tmpl.New("header").Parse(parts.Header))
+	tmpl = template.Must(tmpl.New("meta").Parse(parts.Meta))
 	tmpl = template.Must(tmpl.New("readme").Parse(parts.Readme))
 
 	tmpl = template.Must(tmpl.New("blob").Parse(blob))
