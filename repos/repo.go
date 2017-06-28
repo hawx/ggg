@@ -140,13 +140,16 @@ func (r *Repo) Branches() (branches []string) {
 	return g.Branches()
 }
 
-func (r *Repo) Files(tree string) (files []File) {
+func (r *Repo) Files(tree string) (files []File, ok bool) {
 	g, err := OpenRepo(r.Path)
 	if err != nil {
-		return files
+		return files, false
 	}
 
-	files, _ = g.Files(r.DefaultBranch(), tree)
+	files, err = g.Files(r.DefaultBranch(), tree)
+	if err == object.ErrDirectoryNotFound {
+		return files, false
+	}
 
 	sort.Slice(files, func(i, j int) bool {
 		if files[i].IsDir && !files[j].IsDir {
@@ -159,20 +162,21 @@ func (r *Repo) Files(tree string) (files []File) {
 		return strings.ToLower(files[i].Name) < strings.ToLower(files[j].Name)
 	})
 
-	return files
+	return files, true
 }
 
 func (r *Repo) IsEmpty() bool {
 	return len(r.Branches()) == 0
 }
 
-func (r *Repo) Contents(file string) (string, error) {
+func (r *Repo) Contents(file string) (string, bool) {
 	g, err := OpenRepo(r.Path)
 	if err != nil {
-		return "", err
+		return "", false
 	}
 
-	return g.ReadFile(r.DefaultBranch(), file)
+	f, err := g.ReadFile(r.DefaultBranch(), file)
+	return f, err != object.ErrFileNotFound
 }
 
 func (r *Repo) Readme() (name string, contents template.HTML) {

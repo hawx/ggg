@@ -76,6 +76,12 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 		r.HandleFunc("/:name", func(w http.ResponseWriter, r *http.Request) {
 			readmeName, readmeContents := repo.Readme()
 
+			files, ok := repo.Files("")
+			if !ok {
+				http.NotFound(w, r)
+				return
+			}
+
 			w.Header().Add("Content-Type", "text/html")
 			views.Repo.Execute(w, views.RepoCtx{
 				Title:        title,
@@ -86,7 +92,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 				Description:  repo.Description,
 				Path:         repo.Path,
 				CloneUrl:     repo.CloneUrl(),
-				Files:        repo.Files(""),
+				Files:        files,
 				IsEmpty:      repo.IsEmpty(),
 				IsPrivate:    repo.IsPrivate,
 				Dir:          "",
@@ -100,6 +106,11 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 			tree := route.Vars(r)["tree"]
 
 			parentDir := path.Dir(tree)
+			files, ok := repo.Files(tree)
+			if !ok {
+				http.NotFound(w, r)
+				return
+			}
 
 			w.Header().Add("Content-Type", "text/html")
 			views.Tree.Execute(w, views.RepoCtx{
@@ -111,7 +122,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 				Description: repo.Description,
 				Path:        repo.Path,
 				CloneUrl:    repo.CloneUrl(),
-				Files:       repo.Files(tree),
+				Files:       files,
 				IsEmpty:     repo.IsEmpty(),
 				IsPrivate:   repo.IsPrivate,
 				Dir:         tree,
@@ -123,7 +134,12 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 		r.HandleFunc("/:name/blob/*blob", func(w http.ResponseWriter, r *http.Request) {
 			blob := route.Vars(r)["blob"]
 
-			contents, _ := repo.Contents(blob)
+			contents, ok := repo.Contents(blob)
+			if !ok {
+				http.NotFound(w, r)
+				return
+			}
+
 			dir, name := path.Split(blob)
 			ext := path.Ext(name)
 			if len(ext) > 1 {
