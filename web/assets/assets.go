@@ -22,4 +22,5 @@ func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 var (
 	Styles    = handle(styles)
 	Highlight = handle(highlight)
+	Filter    = handle(filter)
 )

@@ -8,6 +8,10 @@ const list = `<!DOCTYPE html>
   <body>
     {{ template "header" . }}
 
+    <div class="container filter">
+      <input id="filter" type="search" placeholder="Filter..." tabindex="1" />
+    </div>
+
     <div class="container">
       <ul class="repos">
         {{ range .Repos }}
@@ -21,5 +25,7 @@ const list = `<!DOCTYPE html>
         {{ end }}
       </ul>
     </div>
+
+    <script src="/assets/filter.js"></script>
   </body>
 </html>`

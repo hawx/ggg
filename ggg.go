@@ -80,6 +80,7 @@ func main() {
 
 	route.Handle("/assets/styles.css", mux.Method{"GET": assets.Styles})
 	route.Handle("/assets/highlight.js", mux.Method{"GET": assets.Highlight})
+	route.Handle("/assets/filter.js", mux.Method{"GET": assets.Filter})
 
 	serve.Serve(*port, *socket, filters.Log(route.Default))
 }

@@ -119,8 +119,6 @@ header h1 a {
 }
 
 .filter {
-    padding: 1rem 0px;
-    background: #fefefe;
     border-bottom: 1px solid #eee;
 }
 
@@ -128,10 +126,11 @@ header h1 a {
     display: block;
     border: none;
     width: 100%;
-    padding: 0 0.5rem;
+    padding: 0 0.5rem 1rem;
     font: 1rem Verdana, Geneva, sans-serif;
     margin: 0;
     background: none repeat scroll 0% 0% transparent;
+    font-style: italic;
 }
 
 hr {
