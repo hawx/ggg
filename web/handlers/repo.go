@@ -12,7 +12,7 @@ import (
 	"hawx.me/code/route"
 )
 
-type Protect func(handler, errHandler http.Handler) http.Handler
+type Protect func(handler, errHandler http.Handler) http.HandlerFunc
 
 func Repo(db repos.Db, title, url string, protect Protect) RepoHandler {
 	h := repoHandler{db}
