@@ -1,12 +1,10 @@
-package views
-
-const list = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
-    {{ template "meta" .Title }}
+    {{ template "meta.gotmpl" .Title }}
   </head>
   <body>
-    {{ template "header" . }}
+    {{ template "header.gotmpl" . }}
 
     <div class="container filter">
       <input id="filter" type="search" placeholder="Filter..." tabindex="1" />
@@ -26,6 +24,6 @@ const list = `<!DOCTYPE html>
       </ul>
     </div>
 
-    <script src="/assets/filter.js"></script>
+    <script src="/public/filter.js"></script>
   </body>
-</html>`
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {{ template "meta.gotmpl" .Name }}
+  </head>
+  <body>
+    {{ template "header.gotmpl" . }}
+
+    <div class="container">
+      {{ template "description.gotmpl" . }}
+    </div>
+
+    <aside class="container is-wide">
+      {{ template "filespath.gotmpl" . }}
+      {{ template "file.gotmpl" . }}
+    </aside>
+
+    {{ template "highlight.gotmpl" }}
+  </body>
+</html>

@@ -1,17 +1,15 @@
 package handlers
 
 import (
-	"hawx.me/code/ggg/repos"
-	"hawx.me/code/ggg/web/views"
+	"net/http"
 
+	"hawx.me/code/ggg/repos"
 	"hawx.me/code/mux"
 	"hawx.me/code/route"
-
-	"net/http"
 )
 
-func Edit(db repos.Db, title string) http.Handler {
-	h := editHandler{db, title}
+func Edit(db repos.Db, title string, templates Templates) http.Handler {
+	h := editHandler{db, title, templates}
 
 	return mux.Method{
 		"GET":  h.Get(),
@@ -20,8 +18,9 @@ func Edit(db repos.Db, title string) http.Handler {
 }
 
 type editHandler struct {
-	db    repos.Db
-	title string
+	db        repos.Db
+	title     string
+	templates Templates
 }
 
 func (h editHandler) Get() http.Handler {
@@ -30,7 +29,7 @@ func (h editHandler) Get() http.Handler {
 		repo := h.db.Get(repoName)
 
 		w.Header().Add("Content-Type", "text/html")
-		views.Edit.Execute(w, struct {
+		h.templates.ExecuteTemplate(w, "edit.gotmpl", struct {
 			Title string
 			*repos.Repo
 			LoggedIn bool

@@ -1,12 +1,10 @@
-package views
-
-const create = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
-    {{ template "meta" "create" }}
+    {{ template "meta.gotmpl" "create" }}
   </head>
   <body>
-    {{ template "header" . }}
+    {{ template "header.gotmpl" . }}
 
     <div class="container">
       <form method="POST" action="/-/create">
@@ -27,4 +25,4 @@ const create = `<!DOCTYPE html>
       </form>
     </div>
   </body>
-</html>`
+</html>

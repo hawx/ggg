@@ -8,14 +8,13 @@ import (
 	"strings"
 
 	"hawx.me/code/ggg/repos"
-	"hawx.me/code/ggg/web/views"
 	"hawx.me/code/route"
 )
 
 type Protect func(handler, errHandler http.Handler) http.HandlerFunc
 
-func Repo(db repos.Db, title, url string, protect Protect) RepoHandler {
-	h := repoHandler{db}
+func Repo(db repos.Db, title, url string, protect Protect, templates Templates) RepoHandler {
+	h := repoHandler{db, templates}
 
 	return RepoHandler{
 		Html: h.Html(title, url, protect),
@@ -29,7 +28,8 @@ type RepoHandler struct {
 }
 
 type repoHandler struct {
-	db repos.Db
+	db        repos.Db
+	templates Templates
 }
 
 func (h repoHandler) Git() http.Handler {
@@ -83,7 +83,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 			}
 
 			w.Header().Add("Content-Type", "text/html")
-			views.Repo.Execute(w, views.RepoCtx{
+			h.templates.ExecuteTemplate(w, "repo.gotmpl", RepoCtx{
 				Title:        title,
 				Url:          url,
 				LoggedIn:     loggedIn,
@@ -113,7 +113,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 			}
 
 			w.Header().Add("Content-Type", "text/html")
-			views.Tree.Execute(w, views.RepoCtx{
+			h.templates.ExecuteTemplate(w, "tree.gotmpl", RepoCtx{
 				Title:       title,
 				Url:         url,
 				LoggedIn:    loggedIn,
@@ -149,7 +149,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 			}
 
 			w.Header().Add("Content-Type", "text/html")
-			views.Blob.Execute(w, views.BlobCtx{
+			h.templates.ExecuteTemplate(w, "blob.gotmpl", BlobCtx{
 				Title:        title,
 				Url:          url,
 				LoggedIn:     loggedIn,
@@ -173,7 +173,7 @@ func (h repoHandler) htmlPage(title string, repo *repos.Repo, url string) func(b
 	}
 }
 
-func splitDir(dir string) (res []views.PathPart) {
+func splitDir(dir string) (res []PathPart) {
 	parts := strings.Split(dir, "/")
 
 	last := ""
@@ -183,7 +183,7 @@ func splitDir(dir string) (res []views.PathPart) {
 		}
 
 		last = last + "/" + part
-		res = append(res, views.PathPart{Name: part, Path: last})
+		res = append(res, PathPart{Name: part, Path: last})
 	}
 
 	return res
@@ -195,4 +195,49 @@ func prettyDir(dir string) string {
 	}
 
 	return dir[:len(dir)-1]
+}
+
+type RepoCtx struct {
+	Title    string
+	Url      string
+	LoggedIn bool
+
+	Name         string
+	Web          string
+	Description  string
+	Path         string
+	CloneUrl     string
+	Files        []repos.File
+	IsEmpty      bool
+	IsPrivate    bool
+	Dir          string
+	DirParts     []PathPart
+	ParentDir    string
+	FileName     string
+	FileContents template.HTML
+}
+
+type BlobCtx struct {
+	Title    string
+	Url      string
+	LoggedIn bool
+
+	Name         string
+	Web          string
+	Description  string
+	Path         string
+	CloneUrl     string
+	IsEmpty      bool
+	IsPrivate    bool
+	Dir          string
+	DirParts     []PathPart
+	ParentDir    string
+	FileName     string
+	FileContents template.HTML
+	FileLang     string
+}
+
+type PathPart struct {
+	Name string
+	Path string
 }

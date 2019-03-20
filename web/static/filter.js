@@ -1,6 +1,3 @@
-package assets
-
-const filter = `
 var filter = document.getElementById("filter");
 var list = document.querySelector(".repos");
 
@@ -17,4 +14,3 @@ filter.addEventListener("keyup", function() {
         }
     }
 });
-`

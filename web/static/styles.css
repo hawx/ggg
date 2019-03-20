@@ -1,6 +1,4 @@
-package assets
 
-const styles = `
 html, body {
     margin: 0;
     padding: 0;
@@ -387,4 +385,3 @@ article th {
 .hljs-emphasis {
     font-style: italic;
 }
-`

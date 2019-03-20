@@ -1,12 +1,10 @@
-package views
-
-const edit = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
-    {{ template "meta" "edit" }}
+    {{ template "meta.gotmpl" "edit" }}
   </head>
   <body>
-    {{ template "header" . }}
+    {{ template "header.gotmpl" . }}
 
     <div class="container">
       <div class="repo">
@@ -38,4 +36,4 @@ const edit = `<!DOCTYPE html>
       </form>
     </div>
   </body>
-</html>`
+</html>

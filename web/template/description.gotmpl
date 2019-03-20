@@ -1,6 +1,4 @@
-package parts
 
-const Description = `
 <div class="repo {{if .IsPrivate}}private{{end}}">
   <div class="repo-header">
     <h1><a href="/{{.Name}}">{{.Name}}</a></h1>
@@ -21,4 +19,3 @@ const Description = `
 
   <pre class="clone"><code class="nohighlight">git clone {{.Url}}/{{.CloneUrl}}</code></pre>
 </div>
-`

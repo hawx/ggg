@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"hawx.me/code/ggg/repos"
-	"hawx.me/code/ggg/web/views"
-
 	"net/http"
+
+	"hawx.me/code/ggg/repos"
 )
 
-func List(db repos.Db, title, url string) ListHandler {
-	h := listHandler{db, title, url}
+func List(db repos.Db, title, url string, templates Templates) ListHandler {
+	h := listHandler{db, title, url, templates}
 
 	return ListHandler{
 		Public: h.Public(),
@@ -22,9 +21,10 @@ type ListHandler struct {
 }
 
 type listHandler struct {
-	db    repos.Db
-	title string
-	url   string
+	db        repos.Db
+	title     string
+	url       string
+	templates Templates
 }
 
 type Ctx struct {
@@ -44,13 +44,13 @@ func (h listHandler) Public() http.Handler {
 		}
 
 		w.Header().Add("Content-Type", "text/html")
-		views.List.Execute(w, Ctx{h.title, h.url, repos, false})
+		h.templates.ExecuteTemplate(w, "list.gotmpl", Ctx{h.title, h.url, repos, false})
 	})
 }
 
 func (h listHandler) All() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/html")
-		views.List.Execute(w, Ctx{h.title, h.url, h.db.GetAll(), true})
+		h.templates.ExecuteTemplate(w, "list.gotmpl", Ctx{h.title, h.url, h.db.GetAll(), true})
 	})
 }

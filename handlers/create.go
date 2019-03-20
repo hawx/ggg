@@ -1,15 +1,14 @@
 package handlers
 
 import (
-	"hawx.me/code/ggg/repos"
-	"hawx.me/code/ggg/web/views"
-	"hawx.me/code/mux"
-
 	"net/http"
+
+	"hawx.me/code/ggg/repos"
+	"hawx.me/code/mux"
 )
 
-func Create(db repos.Db, title string) http.Handler {
-	h := createHandler{db, title}
+func Create(db repos.Db, title string, templates Templates) http.Handler {
+	h := createHandler{db, title, templates}
 
 	return mux.Method{
 		"GET":  h.Get(),
@@ -18,14 +17,15 @@ func Create(db repos.Db, title string) http.Handler {
 }
 
 type createHandler struct {
-	db    repos.Db
-	title string
+	db        repos.Db
+	title     string
+	templates Templates
 }
 
 func (h createHandler) Get() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "text/html")
-		views.Create.Execute(w, struct {
+		h.templates.ExecuteTemplate(w, "create.gotmpl", struct {
 			Title    string
 			LoggedIn bool
 		}{h.title, true})

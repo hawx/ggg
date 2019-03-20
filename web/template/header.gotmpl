@@ -1,6 +1,4 @@
-package parts
-
-const Header = `<header>
+<header>
   <h1><a href="/">{{.Title}}</a></h1>
   {{ if .LoggedIn }}
   <a href="/-/create">create</a>
@@ -8,4 +6,4 @@ const Header = `<header>
   {{ else }}
   <a href="/-/sign-in" title="Sign-in">sign-in</a>
   {{ end }}
-</header>`
+</header>

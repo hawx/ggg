@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    {{ template "meta.gotmpl" .Name }}
+  </head>
+  <body>
+    {{ template "header.gotmpl" . }}
+
+    <div class="container">
+      {{ template "description.gotmpl" . }}
+    </div>
+
+    <aside class="container is-wide">
+      {{ if not .IsEmpty }}
+        {{ template "files.gotmpl" . }}
+      {{ end }}
+      {{ template "readme.gotmpl" . }}
+    </aside>
+
+    {{ template "highlight.gotmpl" }}
+  </body>
+</html>
