@@ -1,5 +1,7 @@
 module hawx.me/code/ggg
 
+go 1.16
+
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 // indirect
@@ -29,13 +31,13 @@ require (
 	github.com/src-d/go-git-fixtures v3.3.0+incompatible // indirect
 	github.com/xanzy/ssh-agent v0.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20180904163835-0709b304e793 // indirect
-	golang.org/x/text v0.3.0 // indirect
 	gopkg.in/src-d/go-billy.v2 v2.0.5 // indirect
 	gopkg.in/src-d/go-billy.v4 v4.2.1 // indirect
 	gopkg.in/src-d/go-git-fixtures.v3 v3.1.1 // indirect
 	gopkg.in/src-d/go-git.v4 v4.0.0-rc9.0.20170310113601-4eef16a98d09
 	gopkg.in/warnings.v0 v0.1.2 // indirect
-	hawx.me/code/indieauth v0.0.0-20190302165148-d51e58d05695
+	hawx.me/code/indieauth v1.0.2
+	hawx.me/code/indieauth/v2 v2.0.0 // indirect
 	hawx.me/code/mux v0.0.0-20171229202905-76b5c781b7be
 	hawx.me/code/route v1.0.0
 	hawx.me/code/serve v0.0.0-20190207181551-eb94630184cf

@@ -9,8 +9,7 @@ import (
 
 	"hawx.me/code/ggg/handlers"
 	"hawx.me/code/ggg/repos"
-	"hawx.me/code/indieauth"
-	"hawx.me/code/indieauth/sessions"
+	"hawx.me/code/indieauth/v2"
 	"hawx.me/code/mux"
 	"hawx.me/code/route"
 	"hawx.me/code/serve"
@@ -30,12 +29,10 @@ func main() {
 	)
 	flag.Parse()
 
-	auth, err := indieauth.Authentication(*url, *url+"/-/callback")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	session, err := sessions.New(*me, *secret, auth)
+	sessions, err := indieauth.NewSessions(*secret, &indieauth.Config{
+		ClientID:    *url,
+		RedirectURL: *url + "/-/callback",
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,10 +45,24 @@ func main() {
 	db := repos.Open(*dbPath, *gitDir)
 	defer db.Close()
 
-	list := handlers.List(db, *title, *url, templates)
-	repo := handlers.Repo(db, *title, *url, session.Choose, templates)
+	choose := func(signedIn, signedOut http.Handler) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			if _, ok := sessions.SignedIn(r); ok {
+				signedIn.ServeHTTP(w, r)
+			} else {
+				signedOut.ServeHTTP(w, r)
+			}
+		}
+	}
 
-	route.Handle("/", mux.Method{"GET": session.Choose(list.All, list.Public)})
+	shield := func(h http.Handler) http.Handler {
+		return choose(h, http.NotFoundHandler())
+	}
+
+	list := handlers.List(db, *title, *url, templates)
+	repo := handlers.Repo(db, *title, *url, choose, templates)
+
+	route.Handle("/", mux.Method{"GET": choose(list.All, list.Public)})
 
 	route.HandleFunc("/:name/*path", func(w http.ResponseWriter, r *http.Request) {
 		vars := route.Vars(r)
@@ -64,14 +75,37 @@ func main() {
 		repo.Html.ServeHTTP(w, r)
 	})
 
-	route.Handle("/:name/edit", session.Shield(handlers.Edit(db, *title, templates)))
-	route.Handle("/:name/delete", session.Shield(handlers.Delete(db)))
+	route.Handle("/:name/edit", shield(handlers.Edit(db, *title, templates)))
+	route.Handle("/:name/delete", shield(handlers.Delete(db)))
 
-	route.Handle("/-/create", session.Shield(handlers.Create(db, *title, templates)))
+	route.Handle("/-/create", shield(handlers.Create(db, *title, templates)))
 
-	route.HandleFunc("/-/sign-in", session.SignIn())
-	route.HandleFunc("/-/callback", session.Callback())
-	route.HandleFunc("/-/sign-out", session.SignOut())
+	route.HandleFunc("/-/sign-in", func(w http.ResponseWriter, r *http.Request) {
+		if err := sessions.RedirectToSignIn(w, r, *me); err != nil {
+			log.Println(err)
+			http.Error(w, "", http.StatusInternalServerError)
+		}
+	})
+
+	route.HandleFunc("/-/callback", func(w http.ResponseWriter, r *http.Request) {
+		if err := sessions.Verify(w, r); err != nil {
+			log.Println(err)
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/", http.StatusFound)
+	})
+
+	route.HandleFunc("/-/sign-out", func(w http.ResponseWriter, r *http.Request) {
+		if err := sessions.SignOut(w, r); err != nil {
+			log.Println(err)
+			http.Error(w, "", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, "/", http.StatusFound)
+	})
 
 	route.Handle("/public/*path", http.StripPrefix("/public", http.FileServer(http.Dir(*webPath+"/static"))))
 
