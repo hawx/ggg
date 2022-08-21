@@ -11,7 +11,7 @@ require (
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/gliderlabs/ssh v0.1.1 // indirect
 	github.com/google/go-cmp v0.2.0 // indirect
-	github.com/gorilla/sessions v1.1.3 // indirect
+	github.com/gorilla/sessions v1.2.1 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
 	github.com/jessevdk/go-flags v1.4.0 // indirect
 	github.com/kevinburke/ssh_config v0.0.0-20180830205328-81db2a75821e // indirect
@@ -31,13 +31,14 @@ require (
 	github.com/src-d/go-git-fixtures v3.3.0+incompatible // indirect
 	github.com/xanzy/ssh-agent v0.2.0 // indirect
 	golang.org/x/crypto v0.0.0-20180904163835-0709b304e793 // indirect
+	golang.org/x/net v0.0.0-20220812174116-3211cb980234 // indirect
 	gopkg.in/src-d/go-billy.v2 v2.0.5 // indirect
 	gopkg.in/src-d/go-billy.v4 v4.2.1 // indirect
 	gopkg.in/src-d/go-git-fixtures.v3 v3.1.1 // indirect
 	gopkg.in/src-d/go-git.v4 v4.0.0-rc9.0.20170310113601-4eef16a98d09
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	hawx.me/code/indieauth v1.0.2
-	hawx.me/code/indieauth/v2 v2.0.0 // indirect
+	hawx.me/code/indieauth/v2 v2.1.0 // indirect
 	hawx.me/code/mux v0.0.0-20171229202905-76b5c781b7be
 	hawx.me/code/route v1.0.0
 	hawx.me/code/serve v0.0.0-20190207181551-eb94630184cf
